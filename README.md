@@ -38,8 +38,32 @@ The project is organized into the following directories and files:
 
 The project uses scheduling directives to configure job submission in cluster or batch processing environments. The following scheduler directives are used:
 
-- `hash`: Prefix for directives (e.g., `#PBS` or `#SBATCH`).
-- Add more directives as needed for your specific scheduler.
+- `queue`: Submission queue in the scheduler.
+- `node_count`: Number of required nodes.
+- `total_task_count`: Total number of MPI tasks.
+- `tasks_per_node`: Number of MPI tasks per node.
+- `cpus_per_task`: Number of CPUs per task (SLURM).
+- `wall_clock_limit`: Execution time limit.
+- `output_file`: Standard output file.
+- `error_file`: Error messages output file.
+- `combine_stdout_stderr`: Combine standard output and error.
+- `copy_environment`: Copy the user's environment.
+- `event_notification`: Notification events.
+- `email_address`: Email address for notifications.
+- `job_name`: Task name.
+- `job_restart`: Permission to restart the task.
+- `working_directory`: Working directory.
+- `resource_sharing`: Resource sharing policy.
+- `memory_size`: Required memory size.
+- `account_to_charge`: Account to charge.
+- `job_dependency`: Task dependencies.
+- `job_host_preference`: Node preference (SLURM).
+- `quality_of_service`: Quality of Service (QoS) (SLURM).
+- `job_arrays`: Execution in array job format.
+- `generic_resources`: Required generic resources (SLURM).
+- `licenses`: Required licenses (SLURM).
+
+
 
 ## Usage
 
@@ -74,34 +98,6 @@ machine:
   EGEON:
     # ... Configurations for the EGEON machine ...
 ```
-
-### General Directives
-
-- **queue**: Submission queue in the scheduler.
-- **node_count**: Number of required nodes.
-- **total_task_count**: Total number of MPI tasks.
-- **tasks_per_node**: Number of MPI tasks per node.
-- **cpus_per_task**: Number of CPUs per task (SLURM).
-- **wall_clock_limit**: Execution time limit.
-- **output_file**: Standard output file.
-- **error_file**: Error messages output file.
-- **combine_stdout_stderr**: Combine standard output and error.
-- **copy_environment**: Copy the user's environment.
-- **event_notification**: Notification events.
-- **email_address**: Email address for notifications.
-- **job_name**: Task name.
-- **job_restart**: Permission to restart the task.
-- **working_directory**: Working directory.
-- **resource_sharing**: Resource sharing policy.
-- **memory_size**: Required memory size.
-- **account_to_charge**: Account to charge.
-- **job_dependency**: Task dependencies.
-- **job_host_preference**: Node preference (SLURM).
-- **quality_of_service**: Quality of Service (QoS) (SLURM).
-- **job_arrays**: Execution in array job format.
-- **generic_resources**: Required generic resources (SLURM).
-- **licenses**: Required licenses (SLURM).
-
   
 ## License
 
