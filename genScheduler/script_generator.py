@@ -19,6 +19,7 @@
 #-----------------------------------------------------------------------------#
 #BOC
 
+import os
 import yaml
 from datetime import datetime
 import re
@@ -36,7 +37,15 @@ def initialize_directives():
 
     # Directives for PBS and SLURM
     directives.add_directive("hash", PBS="#PBS", SLURM="#SBATCH")
-    # Add more directives as needed for your specific scheduler.
+
+    # Determine the path to the package directory
+    package_directory = os.path.dirname(os.path.abspath(__file__))  # Get the current script's
+
+    # Path to the YAML file within the package directory
+    yaml_file_path = os.path.join(package_directory, 'data', 'directives.yaml')
+
+    # Load the directives from the YAML file
+    directives.load_directives_from_yaml(yaml_file_path)
 
     return directives
 

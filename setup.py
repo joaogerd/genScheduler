@@ -29,13 +29,13 @@ setup(
     long_description='Please refer to the README.md for more information.',
     packages=find_packages(),
     tests_require=["pytest"],
-    scripts=["genSchedulerScr.py"],
+    package_data={'genScheduler': ['data/directives.yaml']},
+    scripts=['genSchedulerScr.py'],
     install_requires=[
         'argparse',
-        'math',
         'PyYAML',
         'datetime',
-        're',
+        'regex',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -7,6 +7,7 @@
 # !SCRIPT:
 #
 # !SCRIPT:
+import yaml
 class SchedulerDirectives:
 #
 # !DESCRIPTION:
@@ -91,6 +92,21 @@ class SchedulerDirectives:
         if directive is not None:
             return directive.get(system)
         return None
+        
+    def load_directives_from_yaml(self, yaml_file):
+         """
+         Load scheduling directives from a YAML file and populate the directives dictionary.
+ 
+         Args:
+             yaml_file (str): The path to the YAML file containing scheduling directives.
+ 
+         Example:
+             directives.load_directives_from_yaml("directives.yaml")
+         """
+         with open(yaml_file, 'r') as file:
+             data = yaml.load(file, Loader=yaml.FullLoader)
+             for directive_name, options in data.items():
+                 self.add_directive(directive_name, **options)
 
 #EOC
 #-----------------------------------------------------------------------------#

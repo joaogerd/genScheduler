@@ -1,0 +1,34 @@
+scheduler:
+  directives:
+    - job_name: gsiAnl
+      queue: pesq
+      account_to_charge: CPTEC
+      shell: /bin/bash
+      walltime: 01:00:00
+        
+  extraInfo:
+    - exec: gsi.exe
+      ulimit_c: unlimited
+      ulimit_s: unlimited
+      redirect_stdout: gsiStdout_%Y%m%d%H.log
+
+machine:
+  XC50:
+    max_cores_per_node: 40
+    export:
+      - atp_enabled: 1 
+      - OMP_NUM_THREADS: 1
+      
+  EGEON:
+    max_cores_per_node: 64
+    export:
+      - OMP_NUM_THREADS: 1
+
+    modules:
+      - ohpc
+      - netcdf
+      - netcdf-fortran
+      - scalapack
+      - openblas
+      - openmpi4/4.1.1
+

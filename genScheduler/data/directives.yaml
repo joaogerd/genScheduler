@@ -1,0 +1,93 @@
+queue:
+  PBS: "-q"
+  SLURM: "-p"
+
+node_count:
+  PBS: "-l nodes="
+  SLURM: "-N"
+
+total_task_count:
+  PBS: "-l ppn="
+  SLURM: "-l mppwidth="
+
+tasks_per_node:
+  PBS: "-l mppnppn"
+  SLURM: "--tasks-per-node"
+
+cpus_per_task:
+  SLURM: "--cpus-per-task="
+
+wall_clock_limit:
+  PBS: "-l walltime="
+  SLURM: "-t"
+
+output_file:
+  PBS: "-o"
+  SLURM: "-o"
+
+error_file:
+  PBS: "-e"
+  SLURM: "-e"
+
+combine_stdout_stderr:
+  PBS: "-j oe"
+  SLURM: "-j oe"
+
+copy_environment:
+  PBS: "-V"
+  SLURM: "--export="
+
+event_notification:
+  PBS: "-m abe"
+  SLURM: "--mail-type="
+
+email_address:
+  PBS: "-M"
+  SLURM: "--mail-user="
+
+job_name:
+  PBS: "-N"
+  SLURM: "--job-name="
+
+job_restart:
+  PBS: "-r"
+  SLURM: "--requeue"
+
+working_directory:
+  PBS: "-d"
+  SLURM: "--workdir="
+
+resource_sharing:
+  PBS: "-l naccesspolicy=singlejob"
+  SLURM: "--exclusive"
+
+memory_size:
+  PBS: "-l mem="
+  SLURM: "--mem="
+
+account_to_charge:
+  PBS: "-A"
+  SLURM: "--account="
+
+job_dependency:
+  PBS: "-d"
+  SLURM: "--depend="
+
+job_host_preference:
+  SLURM: "--nodelist="
+
+quality_of_service:
+  PBS: "-l qos="
+  SLURM: "--qos="
+
+job_arrays:
+  PBS: "-t"
+  SLURM: "--array="
+
+generic_resources:
+  PBS: "-l other="
+  SLURM: "--gres"
+
+licenses:
+  SLURM: "--licenses="
+
