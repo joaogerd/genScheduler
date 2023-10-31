@@ -71,34 +71,66 @@ The project uses scheduling directives to configure job submission in cluster or
 
 Directives are configured in the YAML file within the following sections:
 
-- **scheduler > directives**: General configuration of directives.
-- **scheduler > extraInfo**: Additional information for the submission script.
-- **machine > <machine name>**: Specific settings for individual machines.
+- `**scheduler > directives**`: General configuration of directives.
+- `**scheduler > extraInfo**`: Additional information for the submission script.
+- `**machine > <machine name>`**: Specific settings for individual machines.
 
 Make sure to adjust the directives in the YAML file as needed to meet the specific requirements of your task and machine.
+### Running the Script
 
-Example YAML file:
+Assuming that you have already installed the genScheduler package and have the `genSchedulerScr.py` script in your system's PATH, here are the steps to generate a submission script:
 
-```yaml
-scheduler:
-  directives:
-    - queue: research
-      node_count: 2
-      total_task_count: 16
-      # ... Other directives ...
-  extraInfo:
-    - exec: my_script.exe
-      ulimit_c: unlimited
-      # ... Other information ...
-machine:
-  XC50:
-    export:
-      - variable1: value1
-      # ... Other configurations ...
-  EGEON:
-    # ... Configurations for the EGEON machine ...
-```
-  
+1. **Preparation of the `config.yml` File**:
+   - Create or edit a `config.yml` file that contains the desired configurations for the submission script. You can follow the example format provided below:
+
+   ```yaml
+   scheduler:
+     directives:
+       - job_name: myJob
+         queue: myQueue
+         walltime: 01:00:00
+
+     extraInfo:
+       - exec: myExecutable
+         ulimit_c: unlimited
+         ulimit_s: unlimited
+         redirect_stdout: myJob_%Y%m%d%H.log
+
+   machine:
+     MY_MACHINE:
+       export:
+         - my_environment_var: my_value
+       modules:
+         - my_module
+       commands:
+         - my shell comand1
+         - my shell comand2
+   ```
+2. **Execute the Script**:
+   - Open your terminal or command prompt.
+   - Navigate to the directory where your `config.yml` file is located.
+
+   To generate the submission script, use the following command:
+
+   ```bash
+   genSchedulerScr.py --machine YOUR_MACHINE --scheduler SCHEDULER --max-cores-per-node MAX_CORES --mpi-tasks MPI_TASKS --threads-per-mpi-task THREADS
+   ```
+   
+   - `YOUR_MACHINE`: Replace it with the name of the target machine as defined in your config.yml.
+   - `SCHEDULER`: Choose the type of scheduler you want to use (PBS or SLURM).
+   - `MAX_CORES`: Set the maximum number of cores per node.
+   - `MPI_TASKS`: Specify the number of MPI tasks.
+   - `THREADS`: Specify the number of cores per MPI task.
+
+   ##### Script Generation:
+      Upon executing the script, you will receive the generated submission script as output. The script will include all the specified directives, options, and configurations from your config.yml file and the command-line arguments.
+
+      The generated submission script will be saved as a separate file in the same directory where your config.yml file is located. You can customize the output filename as needed. The filename will typically reflect your job name, timestamp, or other specified naming conventions.
+
+      Now you have a customized submission script ready for use with your chosen scheduler.
+
+      Please ensure that you provide the appropriate settings in your config.yml file and follow the instructions for running the script. Make sure that the Python environment used for execution is compatible with the environment where you intend to use the submission script.
+
 ## License
 
 This project is licensed under the [License Name](LICENSE).
