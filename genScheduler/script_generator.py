@@ -56,7 +56,7 @@ def parser():
     }
 
     # Initialize the argument parser
-    parser = argparse.ArgumentParser(description='Your script description here')
+    parser = argparse.ArgumentParser(description='Generate customized submission scripts for PBS and SLURM schedulers.')
 
     parser.add_argument("--machine", type=str,required=True, help="Machine name (e.g., XC50, EGEON)")
     parser.add_argument("--scheduler", type=str, required=True, help="Script type (PBS or SLURM)")
