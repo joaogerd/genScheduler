@@ -1,93 +1,167 @@
-queue:
-  PBS: "-q"
-  SLURM: "-p"
-
-node_count:
-  PBS: "-l nodes="
-  SLURM: "-N"
-
-total_task_count:
-  PBS: "-l ppn="
-  SLURM: "-l mppwidth="
-
-tasks_per_node:
-  PBS: "-l mppnppn"
-  SLURM: "--tasks-per-node"
-
-cpus_per_task:
-  SLURM: "--cpus-per-task="
-
-wall_clock_limit:
-  PBS: "-l walltime="
-  SLURM: "-t"
-
-output_file:
-  PBS: "-o"
-  SLURM: "-o"
-
-error_file:
-  PBS: "-e"
-  SLURM: "-e"
-
-combine_stdout_stderr:
-  PBS: "-j oe"
-  SLURM: "-j oe"
-
-copy_environment:
-  PBS: "-V"
-  SLURM: "--export="
-
-event_notification:
-  PBS: "-m abe"
-  SLURM: "--mail-type="
-
-email_address:
-  PBS: "-M"
-  SLURM: "--mail-user="
-
-job_name:
-  PBS: "-N"
-  SLURM: "--job-name="
-
-job_restart:
-  PBS: "-r"
-  SLURM: "--requeue"
-
-working_directory:
-  PBS: "-d"
-  SLURM: "--workdir="
-
-resource_sharing:
-  PBS: "-l naccesspolicy=singlejob"
-  SLURM: "--exclusive"
-
-memory_size:
-  PBS: "-l mem="
-  SLURM: "--mem="
-
-account_to_charge:
-  PBS: "-A"
-  SLURM: "--account="
-
-job_dependency:
-  PBS: "-d"
-  SLURM: "--depend="
-
-job_host_preference:
-  SLURM: "--nodelist="
-
-quality_of_service:
-  PBS: "-l qos="
-  SLURM: "--qos="
-
-job_arrays:
-  PBS: "-t"
-  SLURM: "--array="
-
-generic_resources:
-  PBS: "-l other="
-  SLURM: "--gres"
-
-licenses:
-  SLURM: "--licenses="
+directives:
+  - name: queue
+    description: Specify the queue name
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-q"
+      SLURM: "-p"
+  - name: node_count
+    description: Specify the number of nodes
+    type: int
+    required: False
+    scheduler_directive:
+      PBS: "-l nodes="
+      SLURM: "-N"
+  - name: total_task_count
+    description: Specify the total task count
+    type: int
+    required: False
+    scheduler_directive:
+      PBS: "-l ppn="
+      SLURM: "-l mppwidth="
+  - name: tasks_per_node
+    description: Specify tasks per node
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l mppnppn"
+      SLURM: "--tasks-per-node"
+  - name: cpus_per_task
+    description: Specify CPUs per task
+    type: str
+    required: False
+    scheduler_directive:
+      SLURM: "--cpus-per-task="
+  - name: wall_clock_limit
+    description: Specify the wall clock limit
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l walltime="
+      SLURM: "-t"
+  - name: output_file
+    description: Specify the output file
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-o"
+      SLURM: "-o"
+  - name: error_file
+    description: Specify the error file
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-e"
+      SLURM: "-e"
+  - name: combine_stdout_stderr
+    description: Combine stdout and stderr
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-j oe"
+      SLURM: "-j oe"
+  - name: copy_environment
+    description: Copy the environment
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-V"
+      SLURM: "--export="
+  - name: event_notification
+    description: Specify event notification type
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-m abe"
+      SLURM: "--mail-type="
+  - name: email_address
+    description: Specify email address
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-M"
+      SLURM: "--mail-user="
+  - name: job_name
+    description: Specify the job name
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-N"
+      SLURM: "--job-name="
+  - name: job_restart
+    description: Restart the job if needed
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-r"
+      SLURM: "--requeue"
+  - name: working_directory
+    description: Specify the working directory
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-d"
+      SLURM: "--workdir="
+  - name: resource_sharing
+    description: Specify resource sharing policy
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l naccesspolicy=singlejob"
+      SLURM: "--exclusive"
+  - name: memory_size
+    description: Specify the memory size
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l mem="
+      SLURM: "--mem="
+  - name: account_to_charge
+    description: Specify the account to charge
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-A"
+      SLURM: "--account="
+  - name: job_dependency
+    description: Specify job dependencies
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-d"
+      SLURM: "--depend="
+  - name: job_host_preference
+    description: Specify job host preferences
+    type: str
+    required: False
+    scheduler_directive:
+      SLURM: "--nodelist="
+  - name: quality_of_service
+    description: Specify the quality of service
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l qos="
+      SLURM: "--qos="
+  - name: job_arrays
+    description: Specify job arrays
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-t"
+      SLURM: "--array="
+  - name: generic_resources
+    description: Specify generic resources
+    type: str
+    required: False
+    scheduler_directive:
+      PBS: "-l other="
+      SLURM: "--gres"
+  - name: licenses
+    description: Specify licenses
+    type: str
+    required: False
+    scheduler_directive:
+      SLURM: "--licenses="
 

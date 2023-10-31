@@ -20,11 +20,62 @@
 #BOC
 
 import os
+import argparse
 import yaml
 from datetime import datetime
 import re
 from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
+
+def parser():
+   # Determine the path to the package directory
+    package_directory = os.path.dirname(os.path.abspath(__file__))  # Get the current script's
+
+    # Path to the YAML file within the package directory
+    yaml_file_path = os.path.join(package_directory, 'data', 'directives.yaml')
+
+    # Read the YAML configuration including the list of directives
+    with open(yaml_file_path, 'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
+    
+    # Merge the directive options from the YAML file with the existing directive definitions
+    result = {}
+    for entry in data['directives']:
+        result[entry['name']] = {
+            'description': entry['description'],
+            'type': entry['type'],
+            'required': entry['required']
+        }
+    
+    # Mapeamento de tipos para funções correspondentes
+    type_mapping = {
+        'str': str,
+        'int': int,
+        'float': float,
+        'bool': bool  # Se desejar suportar 'bool'
+    }
+
+    # Initialize the argument parser
+    parser = argparse.ArgumentParser(description='Your script description here')
+
+    parser.add_argument("--machine", type=str,required=True, help="Machine name (e.g., XC50, EGEON)")
+    parser.add_argument("--scheduler", type=str, required=True, help="Script type (PBS or SLURM)")
+    parser.add_argument("--max-cores-per-node", type=int, required=False,help="Maximum number of cores per node")
+    parser.add_argument("--mpi-tasks", type=int, required=True, help="Number of MPI Tasks")
+    parser.add_argument("--threads-per-mpi-task", type=int, required=True, help="Number of cores per MPI task")
+    
+    # Iterate through the merged directive definitions and add them as command-line arguments
+    for name, arg_options in result.items():
+        arg_name = f"--{name}"
+        arg_type = arg_options['type']
+        arg_type = type_mapping.get(arg_options['type'], str)  # Use str as the default if the type is not found in the mapping
+        arg_requ = arg_options['required']
+        arg_help = arg_options['description']
+        parser.add_argument(arg_name,type=arg_type, required=arg_requ, help=arg_help)
+    
+    # Parse the command-line arguments
+    return  parser.parse_args()
+  
 
 def initialize_directives():
     """
@@ -99,7 +150,7 @@ def is_key_not_present(dictionary, key):
     """
     return key not in dictionary
 
-def generate_submission_script(config, machine_name, scheduler_type, mpi_tasks, threads_per_mpi_task=None, max_cores_per_node=None):
+def generate_submission_script(config, args):
     """
     Generate a submission script for job scheduling systems (PBS/SLURM) based on the provided configuration and inputs.
 
@@ -115,39 +166,82 @@ def generate_submission_script(config, machine_name, scheduler_type, mpi_tasks, 
         str: The generated submission script as a string.
     """
     try:
+        # - This part of the script initializes and organizes key information needed for script generation and execution.
+        # - It includes configuration directives, machine-specific settings, shell information, and handling of core allocation.
+        # - The script ensures that required values are defined and sets up parallel processing information.
+
+        # Initialize Scheduler and Gather Relevant Information
         scheduler = initialize_directives()
-
-        # Extract relevant information from the configuration.
-        userDirectives = config['scheduler']['directives'][0]
-        extra_info = config['scheduler']['extraInfo'][0]
-        machine = config['machine'].get(machine_name, {})
-        export = machine.get('export', [])
-        modules = machine.get('modules', [])
-
+        scheduler_type = args.scheduler
+        
+        # Extract and Organize Information from Configuration
+        # - Directives are configuration options for the scheduler.
+        # - ExtraInfo may include additional information for script execution.
+        # - Machine-specific settings are based on the provided machine name.
+        # - Export, modules, and commands are machine-specific configuration details.
+        # - Shebang specifies the shell used in the script.
+        # - Shell name is determined from the shebang.
+        directives   = config['scheduler'].get('directives', [])
+        extra_info   = config['scheduler'].get('extraInfo', [])
+        machine_name = getattr(args, 'machine')
+        machine      = config['machine'].get(machine_name, {})
+        export       = machine.get('export', [])
+        modules      = machine.get('modules', [])
+        commands     = machine.get('commands', [])
+        shebang      = directives.get('shell', '/bin/bash')
+        shell_name   = os.path.basename(shebang)
+        
+        # Handle Maximum Cores per Node Configuration
+        max_cores_per_node = args.max_cores_per_node if args.max_cores_per_node is not None else machine.get('max_cores_per_node')
         if max_cores_per_node is None:
-            max_cores_per_node = config['machine'][machine_name].get('max_cores_per_node')
-            if max_cores_per_node is None:
-                raise ValueError('Maximum cores per node must be defined.')
-
-        processing_info = ParallelProcessingInfo(max_cores_per_node, mpi_tasks, threads_per_mpi_task)
-
+            raise ValueError('Maximum cores per node must be defined.')
+        
+        # Initialize Parallel Processing Information
+        # - This section sets up information related to parallel processing, including
+        #   maximum cores per node, MPI tasks, and threads per MPI task.
+        processing_info = ParallelProcessingInfo(max_cores_per_node, args.mpi_tasks, args.threads_per_mpi_task)
 
         # Start building the submission script.
-        script = f"#!{userDirectives.get('shell', '/bin/bash')}\n"
+        script = f"#!{shebang}\n"
 
-        # Insert directives.
-        for key, value in userDirectives.items():
-            if scheduler.get_directive(key, scheduler_type):
-                script += f"{scheduler.get_directive('hash', scheduler_type)} {scheduler.get_directive(key, scheduler_type)} {value}\n"
+        # Process the list of directives from the file
+        for directive in directives:
+            value = None
 
-        # Handle special cases and optional directives.
-        if is_key_not_present(userDirectives, 'tasks_per_node'):
+            # Handle default values from the YAML file
+            if directive in directives:
+                value = directives[directive]
+        
+            # Handle machine-specific values
+            if directive in machine:
+                value = machine[directive]
+        
+            # Handle command line values
+            if getattr(args, directive,None) is not None:
+                value = getattr(args, directive)
+
+            # Insert directives.
+            if scheduler.get_directive(directive, scheduler_type):
+                script += f"{scheduler.get_directive('hash', scheduler_type)} {scheduler.get_directive(directive, scheduler_type)} {value}\n"
+
+        # Handle Special Cases and Optional Directives
+        # - Set tasks_per_node if not specified in directives
+        # - Set node_count if not specified in directives
+        if is_key_not_present(directives, 'tasks_per_node'):
             script += f"{scheduler.get_directive('hash', scheduler_type)} {scheduler.get_directive('tasks_per_node', scheduler_type)} {processing_info.tasks_per_node}\n"
-
-        if is_key_not_present(userDirectives, 'node_count'):
+        
+        if is_key_not_present(directives, 'node_count'):
             script += f"{scheduler.get_directive('hash', scheduler_type)} {scheduler.get_directive('node_count', scheduler_type)} {processing_info.nodes}\n"
-
-        script += "\n# Extra information\n"
+        
+        script += "\n# Additional HPC Configuration\n"
+        
+        # Include additional HPC-specific options here
+        # Example:
+        # - Set GPU options
+        # - Configure memory allocation
+        # - Specify HPC-specific directives
+        
+        # ulimit_c and ulimit_s for core and stack size limits
         ulimit_c = extra_info.get('ulimit_c')
         ulimit_s = extra_info.get('ulimit_s')
         if ulimit_c:
@@ -155,24 +249,36 @@ def generate_submission_script(config, machine_name, scheduler_type, mpi_tasks, 
         if ulimit_s:
             script += f"ulimit -s {ulimit_s}\n"
 
+        # Export Environment Variables
         if export:
-            script += "\n# Set environment variables\n"
+            script += "\n# Define environment variables\n"
+            cmd = "setenv" if shell_name in ("tsh", "csh") else "export"
             for item in export:
                 for key, value in item.items():
-                    script += f"export {key}={value}\n"
+                    script += f"{cmd} {key}{' ' + str(value) if cmd == 'setenv' else f'={value}'}\n"
 
+        # Load Required Modules
         if modules:
-            script += "\n# Load necessary modules\n"
+            script += "\n# Load essential modules\n"
             for module in modules:
                 script += f"module load {module}\n"
 
+        # Include Shell Commands
+        if commands:
+            script += "\n# Execute necessary shell commands\n"
+            for command in commands:
+                script += f"{command}\n"
+
+        # Execute the Process
+        # - Ensure the executable (exec) is configured
         exec = extra_info.get('exec')
         if not exec:
             raise ValueError("Executable not configured.")
-
+        
+        # Redirect Standard Output (Optional)
         redirect = extra_info.get('redirect_stdout')
         if redirect:
-            # Find the mask in redirect using regular expression
+            # Identify placeholders in the redirect string using regular expressions
             match = re.findall(r'%[YyjJmMdDhHISs]+', redirect)
             if match:
                 mask = ''.join(match)
@@ -182,9 +288,11 @@ def generate_submission_script(config, machine_name, scheduler_type, mpi_tasks, 
                 formatted_date = current_datetime.strftime(mask)
                 # Replace the mask with the formatted date
                 redirect = redirect.replace(mask, formatted_date)
-
+        
+            # Append the redirection of standard output to the executable command
             exec += ' > ' + redirect
-
+        
+        # Configure Working Directory and Execute the Process
         script += "\n# Change to the working directory and execute the process.\n"
         if scheduler_type == 'PBS':
             script += "cd $PBS_O_WORKDIR\n"
@@ -192,6 +300,11 @@ def generate_submission_script(config, machine_name, scheduler_type, mpi_tasks, 
         elif scheduler_type == 'SLURM':
             script += "cd $SLURM_SUBMIT_DIR\n"
             script += f"srun -n {processing_info.pes} -N {processing_info.tasks_per_node} -c {processing_info.threads_per_mpi_task} ./{exec}\n"
+        
+        # Additional Information:
+        # - This section prepares and executes the specified process within the HPC environment.
+        # - It includes handling the executable, potential standard output redirection, and setting the working directory.
+        # - The script is designed to work with both PBS and SLURM job schedulers, ensuring compatibility with various HPC systems.
 
         return script
 

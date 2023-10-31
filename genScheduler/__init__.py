@@ -23,7 +23,7 @@
 # Import the necessary modules and functions from within the package
 from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
-from .script_generator import SchedulerDirectives, initialize_directives, read_yaml_config
+from .script_generator import SchedulerDirectives, initialize_directives, read_yaml_config, parser
 
 # Optionally, you can make functions or classes available at the package level
 __all__ = ['ParallelProcessingInfo', 'SchedulerDirectives', 'generate_submission_script']

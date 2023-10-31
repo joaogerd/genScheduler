@@ -1,16 +1,16 @@
 scheduler:
   directives:
-    - job_name: gsiAnl
-      queue: pesq
-      account_to_charge: CPTEC
-      shell: /bin/bash
-      walltime: 01:00:00
+    job_name: gsiAnl
+    queue: pesq
+    account_to_charge: CPTEC
+    shell: /bin/bash
+    walltime: 01:00:00
         
   extraInfo:
-    - exec: gsi.exe
-      ulimit_c: unlimited
-      ulimit_s: unlimited
-      redirect_stdout: gsiStdout_%Y%m%d%H.log
+    exec: gsi.exe
+    ulimit_c: unlimited
+    ulimit_s: unlimited
+    redirect_stdout: gsiStdout_%Y%m%d%H.log
 
 machine:
   XC50:
@@ -21,6 +21,7 @@ machine:
       
   EGEON:
     max_cores_per_node: 64
+    queue: batch
     export:
       - OMP_NUM_THREADS: 1
 
@@ -31,4 +32,8 @@ machine:
       - scalapack
       - openblas
       - openmpi4/4.1.1
+
+    commands:
+      - cd diretorio_A
+      - rm arquivo_B
 
