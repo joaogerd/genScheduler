@@ -28,6 +28,7 @@
 #-----------------------------------------------------------------------------#
 #BOC
 
+import warnings
 import os
 import argparse
 import yaml
@@ -265,7 +266,13 @@ def generate_submission_script(config, args):
         commands     = machine.get('commands', [])
         shebang      = directives.get('shell', '/bin/bash')
         shell_name   = os.path.basename(shebang)
-        
+
+        # Check if the 'machine' configuration is empty.
+        if not machine:
+            # Generate a warning message to inform the user about the empty configuration.
+            print("Machine configuration is empty. Please check your configuration.")
+            print(f'Machine name: {machine_name}')
+            
         # Handle Maximum Cores per Node Configuration
         max_cores_per_node = args.max_cores_per_node if args.max_cores_per_node is not None else machine.get('max_cores_per_node')
         if max_cores_per_node is None:
