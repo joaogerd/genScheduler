@@ -278,7 +278,7 @@ def generate_submission_script(config, args):
         # Extract ulimit options from 'extra_info' and append them to a script.
         ulimit_options = create_ulimit_command(extra_info)
         for option in ulimit_options:
-            script += f"ulimit {option}"
+            script += f"ulimit {option}\n"
             
         # Export Environment Variables
         if export:
