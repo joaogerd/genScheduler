@@ -73,7 +73,9 @@ def parser():
     parser.add_argument("--max-cores-per-node", type=int, required=False,help="Maximum number of cores per node")
     parser.add_argument("--mpi-tasks", type=int, required=True, help="Number of MPI Tasks")
     parser.add_argument("--threads-per-mpi-task", type=int, required=True, help="Number of cores per MPI task")
-    
+    parser.add_argument("--output", type=str, help="Specify the output filename for the generated content.")
+
+
     # Iterate through the merged directive definitions and add them as command-line arguments
     for name, arg_options in result.items():
         arg_name = f"--{name}"
@@ -291,11 +293,12 @@ def generate_submission_script(config, args):
         
         # Merge and prioritize scheduling directives, combining standard directives, user-provided directives,
         # and machine-specific directives for optimal scheduling decisions.
-        all_directives = merge_directives(standard_directives, directives_args, directives, machine)
+        all_directives = merge_keys(standard_directives, directives_args, directives, machine)
 
         # Start building the submission script.
         script = f"#!{shebang}\n"
 
+        job_name = scheduler_type
         # Process the list of directives from the file
         for directive in all_directives:
             value = None
@@ -311,6 +314,10 @@ def generate_submission_script(config, args):
             # Handle command line values
             if getattr(args, directive, None) is not None:
                 value = getattr(args, directive)
+
+            # Check if the directive is 'job_name' and assign its value to 'job_name'
+            if directive == 'job_name':
+                job_name = value
 
             # Insert directives.
             if scheduler.get_directive(directive, scheduler_type):
@@ -389,13 +396,20 @@ def generate_submission_script(config, args):
         elif scheduler_type == 'SLURM':
             script += "cd $SLURM_SUBMIT_DIR\n"
             script += f"srun -n {processing_info.pes} -N {processing_info.tasks_per_node} -c {processing_info.threads_per_mpi_task} ./{exec}\n"
+
+        # Generate a filename based on job name, timestamp, or other conventions
+        if args.output:
+            filename = args.output
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"{job_name}_{timestamp}_submission_script.sh"
         
         # Additional Information:
         # - This section prepares and executes the specified process within the HPC environment.
         # - It includes handling the executable, potential standard output redirection, and setting the working directory.
         # - The script is designed to work with both PBS and SLURM job schedulers, ensuring compatibility with various HPC systems.
 
-        return script
+        return script, filename
 
     except ValueError as ve:
         print(f"Error: {str(ve)}")

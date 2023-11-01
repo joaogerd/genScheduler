@@ -57,10 +57,10 @@ def main():
     
     args   = parser()
     config = read_yaml_config('config.yml')
-    script = generate_submission_script(config, args)
+    script, filename = generate_submission_script(config, args)
 
-    # Save the generated submission script to a file
-    with open(f'{args.scheduler}_submission_script.sh', 'w') as script_file:
+    # Save the generated submission script to the generated filename
+    with open(filename, 'w') as script_file:
         script_file.write(script)
 
 if __name__ == '__main__':
