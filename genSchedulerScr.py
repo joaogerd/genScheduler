@@ -22,8 +22,8 @@ from genScheduler.script_generator import read_yaml_config, generate_submission_
 
 def main():
     
-    config = read_yaml_config('config.yml')
     args   = parser()
+    config = read_yaml_config('config.yml')
     script = generate_submission_script(config, args)
 
 
