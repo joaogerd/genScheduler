@@ -4,17 +4,26 @@
 #-----------------------------------------------------------------------------#
 #BOP
 #
-# !SCRIPT:
+# !SCRIPT: submission_script_generator.py
 #
 # !DESCRIPTION:
-#
+# This Python script generates submission scripts for job scheduling systems 
+# (PBS or SLURM) used in high-performance computing (HPC) environments. It allows 
+# users to create customized submission scripts with various directives, 
+# machine-specific settings, and parallel processing configurations.
+
 # !CALLING SEQUENCE:
-#
+# This script is intended to be run from the command line. Users should provide 
+# specific arguments, such as the target machine, scheduler type (PBS or SLURM), 
+# the number of MPI tasks, and other relevant options.
+
 # !REVISION HISTORY: 
-# 26 out 2023 - J. G. de Mattos - Initial Version
-#
+# - 26th October 2023, J. G. de Mattos: Initial Version
+
 # !REMARKS:
-#
+# - This script is part of the Group on Data Assimilation Development (GDAD) project at CPTEC/INPE.
+# - It facilitates the generation of submission scripts for various HPC systems.
+# - Users should configure the directives, machine-specific settings, and other options in a YAML configuration file.
 #EOP
 #-----------------------------------------------------------------------------#
 #BOC

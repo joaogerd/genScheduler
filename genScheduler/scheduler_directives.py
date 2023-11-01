@@ -4,13 +4,35 @@
 #-----------------------------------------------------------------------------#
 #BOP
 #
-# !SCRIPT:
-#
-# !SCRIPT:
-import yaml
-class SchedulerDirectives:
+# !SCRIPT: scheduler_directives.py
 #
 # !DESCRIPTION:
+# This Python script defines a class called "SchedulerDirectives" for managing
+# directives used with job scheduling systems in high-performance computing (HPC)
+# environments. It allows users to store, retrieve, and load scheduling directives
+# from a YAML file to customize job submissions for different systems.
+
+# !CALLING SEQUENCE:
+# This script is intended for use as a module. The "SchedulerDirectives" class can
+# be imported and used in other Python scripts and projects.
+
+# !REVISION HISTORY:
+# - 28th October 2023, J. G. de Mattos: Initial Version
+
+# !REMARKS:
+# - This script is part of the Group on Data Assimilation Development (GDAD) project
+#   at CPTEC/INPE.
+# - The "SchedulerDirectives" class is designed to provide a convenient way to manage
+#   scheduling directives for various HPC systems.
+# - Users can add, retrieve, and load directives from a YAML file to tailor job
+#   submissions to their specific needs.
+
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
+import yaml
+class SchedulerDirectives:
 
     """
     A class for managing directives to be used with job scheduling systems.
@@ -34,23 +56,7 @@ class SchedulerDirectives:
         partition_option = directives.get_directive("partition", "systemA")
     """
 
-# !CALLING SEQUENCE:
 
-    """
-        directives = SchedulerDirectives()
-        directives.add_directive("partition", systemA="highmem", systemB="standard")
-        partition_option = directives.get_directive("partition", "systemA")
-    """
-
-#
-# !REVISION HISTORY: 
-# 28 out 2023 - J. G. de Mattos - Initial Version
-#
-# !REMARKS:
-#
-#EOP
-#-----------------------------------------------------------------------------#
-#BOC
 
     def __init__(self):
         """

@@ -4,17 +4,37 @@
 #-----------------------------------------------------------------------------#
 #BOP
 #
-#
-
-import math
-#
-# !SCRIPT:
-#
-class ParallelProcessingInfo:
-#
+# !SCRIPT: parallel_processing_info.py
 #
 # !DESCRIPTION:
-#
+# This Python script defines a class called "ParallelProcessingInfo" for providing
+# information related to parallel processing in cluster environments. It allows users
+# to calculate various parameters, such as the number of tasks per node, total number
+# of processes, and the number of nodes needed based on provided inputs.
+
+# !CALLING SEQUENCE:
+# This script is intended to be used as a module. Users can import the "ParallelProcessingInfo"
+# class and create instances to calculate parallel processing information.
+
+# !REVISION HISTORY:
+# - 28th October 2023, J. G. de Mattos: Initial Version
+
+# !REMARKS:
+# - This script is part of the Group on Data Assimilation Development (GDAD) project
+#   at CPTEC/INPE.
+# - The "ParallelProcessingInfo" class is designed to facilitate the management of
+#   parallel processing parameters, making it easier to work with high-performance
+#   computing (HPC) clusters.
+# - Users can create instances of the class to calculate essential parameters for
+#   job scheduling and task allocation.
+
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
+import math
+
+class ParallelProcessingInfo:
     """
     Class for providing information related to parallel processing in cluster environments.
 
@@ -37,15 +57,7 @@ class ParallelProcessingInfo:
         calculate_nodes(): Calculate the number of nodes needed to accommodate the tasks.
         calculate_threads_per_mpi_task(): Calculate the number of threads per task based on the number of tasks per node.
     """
-#
-# !REVISION HISTORY: 
-# 28 out 2023 - J. G. de Mattos - Initial Version
-#
-# !REMARKS:
-#
-#EOP
-#-----------------------------------------------------------------------------#
-#BOC
+
     def __init__(self, max_cores_per_node, mpi_tasks, threads_per_mpi_task=None):
         self.max_cores_per_node = max_cores_per_node
         self.mpi_tasks = mpi_tasks
