@@ -34,7 +34,74 @@ The project is organized into the following directories and files:
 
 - `tests`: Directory for project tests.
 
-## Scheduler Directives
+## Installing the genScheduler
+
+This guide provides instructions for installing the Python script `genScheduler` on your system using the `setup.py` file. The `genScheduler` script is a flexible tool for generating submission scripts for task scheduling systems, with a focus on PBS and SLURM schedulers. You can install it in the standard way or in a custom directory.
+
+### Standard Installation
+
+To install the Python script in the standard way, follow these steps:
+
+1. **Get the Source Code**:
+   - Download the source code of the `genScheduler` script from the project's GitHub repository.
+
+2. **Navigate to the Project Directory**:
+   - Open your terminal or command prompt.
+   - Navigate to the directory where you downloaded the project's source code.
+
+3. **Install the Script**:
+   - Execute the following command to install the script:
+
+     ```bash
+     python setup.py install
+     ```
+
+   - The script will be installed on your system.
+
+4. **Verify the Installation**:
+   - To verify if the script was installed correctly, you can run it using the following command:
+
+     ```bash
+     genSchedulerScr.py --help
+     ```
+
+   - This will display the available options and the script's help.
+
+### Custom Directory Installation
+
+If you want to install the `genScheduler` Python script in a custom directory, follow these steps:
+
+1. **Get the Source Code**:
+   - Download the source code of the `genScheduler` script from the project's GitHub repository.
+
+2. **Navigate to the Project Directory**:
+   - Open your terminal or command prompt.
+   - Navigate to the directory where you downloaded the project's source code.
+
+3. **Install in a Custom Directory**:
+   - Execute the following command, replacing `/Path/To/Directory` with the absolute path to the directory where you want to install the script:
+
+     ```bash
+     python setup.py install --prefix=/Path/To/Directory
+     ```
+
+   - The script will be installed in the specified custom directory.
+
+4. **Verify the Installation**:
+   - To verify if the script was installed correctly in the custom directory, you can run it using the following command:
+
+     ```bash
+     /Path/To/Directory/bin/genSchedulerScr.py --help
+     ```
+
+   - This will display the available options and the script's help.
+
+Now you have the `genScheduler` script installed on your system or in a custom directory, ready to generate submission scripts for PBS and SLURM schedulers.
+
+## Usage
+
+
+### Scheduler Directives
 
 The project uses scheduling directives to configure job submission in cluster or batch processing environments. The following scheduler directives are used:
 
@@ -62,10 +129,6 @@ The project uses scheduling directives to configure job submission in cluster or
 - `job_arrays`: Execution in array job format.
 - `generic_resources`: Required generic resources (SLURM).
 - `licenses`: Required licenses (SLURM).
-
-
-
-## Usage
 
 ### YAML File Configuration
 
