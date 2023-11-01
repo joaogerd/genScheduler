@@ -150,6 +150,40 @@ def is_key_not_present(dictionary, key):
     """
     return key not in dictionary
 
+def create_ulimit_command(data):
+    """
+    Create ulimit commands based on keys and values from a YAML file.
+
+    Parameters:
+    - data (dict): A dictionary containing keys and values from a YAML file.
+
+    Returns:
+    - list: A list of ulimit commands generated from the YAML data.
+
+    This function parses a dictionary with keys that start with "ulimit_" and their corresponding values,
+    and converts them into ulimit commands. Each ulimit command is in the form of "-[resource] [value]".
+
+    Example:
+    If the input data is:
+    {
+        'ulimit_c': 'unlimited',
+        'ulimit_s': 'unlimited'
+    }
+
+    The function will return:
+    ['-c unlimited', '-s unlimited']
+    """
+    ulimit_commands = []
+
+    for key, value in data.items():
+        if key.startswith('ulimit_'):
+            resource = key.replace('ulimit_', '')
+            ulimit_option = f"-{resource} {value}"
+            ulimit_commands.append(ulimit_option)
+
+    return ulimit_commands
+
+
 def generate_submission_script(config, args):
     """
     Generate a submission script for job scheduling systems (PBS/SLURM) based on the provided configuration and inputs.
@@ -241,14 +275,11 @@ def generate_submission_script(config, args):
         # - Configure memory allocation
         # - Specify HPC-specific directives
         
-        # ulimit_c and ulimit_s for core and stack size limits
-        ulimit_c = extra_info.get('ulimit_c')
-        ulimit_s = extra_info.get('ulimit_s')
-        if ulimit_c:
-            script += f"ulimit -c {ulimit_c}\n"
-        if ulimit_s:
-            script += f"ulimit -s {ulimit_s}\n"
-
+        # Extract ulimit options from 'extra_info' and append them to a script.
+        ulimit_options = create_ulimit_command(extra_info)
+        for option in ulimit_options:
+            script += f"ulimit {option}"
+            
         # Export Environment Variables
         if export:
             script += "\n# Define environment variables\n"
