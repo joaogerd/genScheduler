@@ -64,6 +64,15 @@ class SchedulerDirectives:
         """
         self.directives = {}
 
+    def get_directive_names(self):
+        """
+        Returns a list of directive names present in the directives dictionary.
+
+        Returns:
+            list: A list of directive names.
+        """
+        return list(self.directives.keys())
+
     def add_directive(self, directive_name, **directive_options):
         """
         Adds a scheduling directive with specified options to the directives dictionary.

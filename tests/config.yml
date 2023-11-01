@@ -10,6 +10,8 @@ scheduler:
     exec: gsi.exe
     ulimit_c: unlimited
     ulimit_s: unlimited
+    ulimit_a: unlimited
+    
     redirect_stdout: gsiStdout_%Y%m%d%H.log
 
 machine:

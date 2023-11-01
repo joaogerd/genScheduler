@@ -192,6 +192,38 @@ def create_ulimit_command(data):
 
     return ulimit_commands
 
+def merge_keys(standard_keys, *dictionaries):
+    """
+    Merges keys from multiple dictionaries while filtering them against a list of standard keys.
+
+    Parameters:
+    standard_keys (list): A list of standard keys to filter against.
+    *dictionaries (dict): Any number of dictionaries to merge.
+
+    Returns:
+    list: A list containing unique keys found in the input dictionaries that are also present in the standard keys list.
+
+    Example:
+    standard_keys = ['job_name', 'account_to_charge', 'shell', 'wall_clock_limit', 'max_cores_per_node', 'queue']
+    directives = {'job_name': 'gsiAnl', 'account_to_charge': 'CPTEC', 'shell': '/bin/bash', 'wall_clock_limit': '01:00:00'}
+    machine = {'max_cores_per_node': 64, 'queue': 'batch', 'export': [{'OMP_NUM_THREADS': 1}], 'modules': ['ohpc', 'netcdf', 'netcdf-fortran', 'scalapack', 'openblas', 'openmpi4/4.1.1'], 'commands': ['cd directory_A', 'rm file_B']}
+    another_dict = {'key1': 'value1', 'key2': 'value2'}
+
+    merged_keys = merge_keys(standard_keys, directives, machine, another_dict)
+    print(merged_keys)
+    # Output: ['queue', 'max_cores_per_node', 'wall_clock_limit', 'job_name', 'shell', 'account_to_charge']
+
+    This function takes a list of standard keys and any number of dictionaries as input.
+    It returns a list of unique keys found in the input dictionaries that are also present in the standard keys list.
+    """
+    merged_keys = set()
+    
+    for dictionary in dictionaries:
+        merged_keys.update(key for key in dictionary.keys() if key in standard_keys)
+    
+    return list(merged_keys)
+
+
 
 def generate_submission_script(config, args):
     """
@@ -244,11 +276,21 @@ def generate_submission_script(config, args):
         #   maximum cores per node, MPI tasks, and threads per MPI task.
         processing_info = ParallelProcessingInfo(max_cores_per_node, args.mpi_tasks, args.threads_per_mpi_task)
 
+        # Retrieve all available scheduling directives from the configuration file (directives.yaml).
+        standard_directives = scheduler.get_directive_names()
+        
+        # Extract and filter scheduling directives from the command-line arguments provided by the user.
+        directives_args = {key: value for key, value in vars(args).items() if value is not None}
+        
+        # Merge and prioritize scheduling directives, combining standard directives, user-provided directives,
+        # and machine-specific directives for optimal scheduling decisions.
+        all_directives = merge_directives(standard_directives, directives_args, directives, machine)
+
         # Start building the submission script.
         script = f"#!{shebang}\n"
 
         # Process the list of directives from the file
-        for directive in directives:
+        for directive in all_directives:
             value = None
 
             # Handle default values from the YAML file
@@ -260,7 +302,7 @@ def generate_submission_script(config, args):
                 value = machine[directive]
         
             # Handle command line values
-            if getattr(args, directive,None) is not None:
+            if getattr(args, directive, None) is not None:
                 value = getattr(args, directive)
 
             # Insert directives.
