@@ -4,7 +4,7 @@ scheduler:
     queue: pesq
     account_to_charge: CPTEC
     shell: /bin/bash
-    walltime: 01:00:00
+    wall_clock_limit: 01:00:00
         
   extraInfo:
     exec: gsi.exe
@@ -24,7 +24,6 @@ machine:
     queue: batch
     export:
       - OMP_NUM_THREADS: 1
-
     modules:
       - ohpc
       - netcdf
@@ -32,7 +31,6 @@ machine:
       - scalapack
       - openblas
       - openmpi4/4.1.1
-
     commands:
       - cd diretorio_A
       - rm arquivo_B
