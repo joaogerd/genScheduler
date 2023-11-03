@@ -151,23 +151,28 @@ Assuming that you have already installed the genScheduler package and have the `
      directives:
        - job_name: myJob
          queue: myQueue
-         walltime: 01:00:00
+         wall_clock_time: 01:00:00
 
      extraInfo:
        - exec: myExecutable
          ulimit_c: unlimited
          ulimit_s: unlimited
          redirect_stdout: myJob_%Y%m%d%H.log
+     commands:
+       - shell command 1
+       - shell command 2
 
    machine:
      MY_MACHINE:
+       queue: machine_specific_queue
+       wall_clock_tims: specific_walltime
        export:
          - my_environment_var: my_value
        modules:
          - my_module
        commands:
-         - my shell comand1
-         - my shell comand2
+         - specific machine shell comand1
+         - specific machibe shell comand2
    ```
 2. **Execute the Script**:
    - Open your terminal or command prompt.
