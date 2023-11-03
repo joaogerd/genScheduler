@@ -165,14 +165,14 @@ Assuming that you have already installed the genScheduler package and have the `
    machine:
      MY_MACHINE:
        queue: machine_specific_queue
-       wall_clock_tims: specific_walltime
+       wall_clock_time: specific_walltime
        export:
          - my_environment_var: my_value
        modules:
          - my_module
        commands:
-         - specific machine shell comand1
-         - specific machibe shell comand2
+         - machine specific shell command 1
+         - machine specific shell command 2
    ```
 2. **Execute the Script**:
    - Open your terminal or command prompt.
