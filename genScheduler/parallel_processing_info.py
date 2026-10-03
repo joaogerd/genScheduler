@@ -1,3 +1,81 @@
+#!/usr/bin/env python
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: parallel_processing_info.py
+#
+# !DESCRIPTION:
+# Defines the ParallelProcessingInfo class used by genScheduler to calculate
+# the parallel-resource values inserted into generated PBS and SLURM scripts.
+#
+# The calculations in this module are part of the externally observable
+# behavior of genScheduler. For compatibility reasons, the formulas are kept
+# exactly as in the original implementation, even where alternative formulas
+# could be considered more conventional.
+#
+# !INTERFACE:
+# from genScheduler.parallel_processing_info import ParallelProcessingInfo
+#
+# info = ParallelProcessingInfo(
+#     max_cores_per_node,
+#     mpi_tasks,
+#     threads_per_mpi_task,
+# )
+#
+# !PUBLIC MEMBER FUNCTIONS:
+# ParallelProcessingInfo.__init__
+#     Initializes the parallel-processing description and derives all dependent
+#     quantities.
+#
+# ParallelProcessingInfo.calculate_tasks_per_node
+#     Returns max_cores_per_node // threads_per_mpi_task.
+#
+# ParallelProcessingInfo.calculate_pes
+#     Returns mpi_tasks // threads_per_mpi_task.
+#
+# ParallelProcessingInfo.calculate_nodes
+#     Returns ceil(mpi_tasks / tasks_per_node).
+#
+# ParallelProcessingInfo.calculate_threads_per_mpi_task
+#     Preserves the historical implicit-thread calculation.
+#
+# !ARGUMENTS:
+# max_cores_per_node
+#     INTEGER. Maximum number of cores available on one compute node.
+#
+# mpi_tasks
+#     INTEGER. MPI-task quantity provided by the caller.
+#
+# threads_per_mpi_task
+#     INTEGER or None. Number of threads assigned to each MPI task.
+#
+# !RETURN VALUE:
+# Class instances expose:
+#     tasks_per_node
+#     pes
+#     nodes
+#     threads_per_mpi_task
+#
+# !REMARKS:
+# The normal command-line interface always provides threads_per_mpi_task.
+# The historical None path is intentionally left unchanged because correcting
+# it would alter an existing error path and is therefore a behavioral change.
+#
+# !REVISION HISTORY:
+# 28 Oct 2023 - J. G. de Mattos - Initial version.
+# 03 Oct 2026 - OpenAI/ChatGPT - Refactored structure and type documentation
+#               while preserving the original numerical behavior.
+# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+#
+# !SEE ALSO:
+# script_generator.py
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 """Parallel resource calculations used by generated scheduler launch commands."""
 
 import math
@@ -5,11 +83,7 @@ from typing import Optional
 
 
 class ParallelProcessingInfo:
-    """Calculate the legacy parallel-processing values used by genScheduler.
-
-    The formulas are intentionally unchanged because they directly affect the
-    generated PBS/SLURM command lines.
-    """
+    """Calculate the legacy parallel-processing values used by genScheduler."""
 
     def __init__(
         self,
@@ -42,9 +116,9 @@ class ParallelProcessingInfo:
         return math.ceil(self.mpi_tasks / self.tasks_per_node)
 
     def calculate_threads_per_mpi_task(self) -> int:
-        """Return the historical implicit thread calculation.
-
-        This method intentionally preserves the original implementation. The
-        normal CLI always supplies threads_per_mpi_task explicitly.
-        """
+        """Return the historical implicit thread calculation."""
         return self.max_cores_per_node // self.tasks_per_node
+
+
+#EOC
+#-----------------------------------------------------------------------------#
