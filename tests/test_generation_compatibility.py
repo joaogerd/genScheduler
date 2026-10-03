@@ -17,6 +17,8 @@
 #
 # !REVISION HISTORY:
 # - 03rd October 2026, J. G. de Mattos: Expanded compatibility coverage for PBS, shell environments and dated outputs.
+# - 03rd October 2026, J. G. de Mattos: Added characterization for malformed
+#   YAML and missing maximum-core configuration errors.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
@@ -29,7 +31,9 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from genScheduler.script_generator import generate_submission_script
+import pytest
+
+from genScheduler.script_generator import generate_submission_script, read_yaml_config
 
 
 def _args(**overrides):
@@ -185,6 +189,36 @@ def test_automatic_filename_uses_job_name_and_current_timestamp(mock_datetime):
 
     assert filename == "forecast_2026-10-03_18-30-00_submission_script.sh"
     mock_datetime.now.return_value.strftime.assert_called_once_with("%Y-%m-%d_%H-%M-%S")
+
+def test_missing_max_cores_preserves_current_error_contract(capsys):
+    config = {
+        "scheduler": {
+            "directives": {"job_name": "missing-cores", "shell": "/bin/bash"},
+            "extraInfo": {"exec": "model.exe"},
+        },
+        "machine": {"TEST": {}},
+    }
+
+    with pytest.raises(SystemExit) as exc:
+        generate_submission_script(config, _args(max_cores_per_node=None))
+
+    assert exc.value.code == 1
+    output = capsys.readouterr().out
+    assert "Machine configuration is empty. Please check your configuration." in output
+    assert "Machine name: TEST" in output
+    assert "Error: Maximum cores per node must be defined." in output
+
+
+def test_malformed_yaml_preserves_current_exit_behavior(tmp_path, capsys):
+    config_file = tmp_path / "invalid.yml"
+    config_file.write_text("scheduler: [invalid", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc:
+        read_yaml_config(config_file)
+
+    assert exc.value.code == 1
+    assert "Error while reading the YAML file:" in capsys.readouterr().out
+
 
 #EOC
 #-----------------------------------------------------------------------------#
