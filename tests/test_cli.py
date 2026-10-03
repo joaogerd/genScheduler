@@ -1,3 +1,31 @@
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: test_cli.py
+#
+# !DESCRIPTION:
+# End-to-end command-line tests covering the historical config.yml default and portable --config file selection.
+#
+# !INTERFACE:
+# Executed by pytest as part of the genScheduler automated validation suite.
+#
+# !RETURN VALUE:
+# No application value is returned. Tests pass silently or fail with assertions
+# that identify compatibility or documentation regressions.
+#
+# !REVISION HISTORY:
+# - 03rd October 2026, J. G. de Mattos: Added CLI integration tests and portable configuration coverage.
+#
+# !SEE ALSO:
+# genScheduler/script_generator.py
+# .github/workflows/tests.yml
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 from genScheduler.script_generator import parser
 from genSchedulerScr import main
 
@@ -62,3 +90,6 @@ machine:
         "cd $SLURM_SUBMIT_DIR\n"
         "srun -n 32 -N 32 -c 2 ./model.exe\n"
     )
+
+#EOC
+#-----------------------------------------------------------------------------#
