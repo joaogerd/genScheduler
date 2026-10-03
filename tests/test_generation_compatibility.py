@@ -16,9 +16,11 @@
 # that identify compatibility or documentation regressions.
 #
 # !REVISION HISTORY:
-# - 03rd October 2026, J. G. de Mattos: Expanded compatibility coverage for PBS, shell environments and dated outputs.
-# - 03rd October 2026, J. G. de Mattos: Added characterization for malformed
-#   YAML and missing maximum-core configuration errors.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Expanded compatibility coverage for PBS, shell environments and dated
+#     outputs.
+#   - Added characterization for malformed YAML and missing maximum-core
+#     configuration errors.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
