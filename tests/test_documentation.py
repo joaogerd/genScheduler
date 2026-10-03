@@ -38,3 +38,12 @@ def test_main_python_sources_preserve_protex_documentation_contract(source_file)
 
     assert content.index("#BOP") < content.index("#EOP")
     assert content.index("#BOC") < content.rindex("#EOC")
+
+    revision_start = content.index("# !REVISION HISTORY:")
+    revision_end = content.index("#EOP", revision_start)
+    revision_history = content[revision_start:revision_end]
+
+    assert "J. G. de Mattos:" in revision_history, (
+        f"{source_file.relative_to(PROJECT_ROOT)} must attribute revision-history "
+        "entries to J. G. de Mattos"
+    )
