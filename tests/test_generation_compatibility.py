@@ -21,6 +21,8 @@
 #     outputs.
 #   - Added characterization for malformed YAML and missing maximum-core
 #     configuration errors.
+#   - Added end-to-end generation coverage using the repository's maintained
+#     tests/config.yml example.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
@@ -30,6 +32,7 @@
 #-----------------------------------------------------------------------------#
 #BOC
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -220,6 +223,43 @@ def test_malformed_yaml_preserves_current_exit_behavior(tmp_path, capsys):
 
     assert exc.value.code == 1
     assert "Error while reading the YAML file:" in capsys.readouterr().out
+
+
+@patch("genScheduler.script_generator.datetime")
+def test_repository_example_config_generates_expected_slurm_script(mock_datetime):
+    mock_datetime.now.return_value.strftime.return_value = "2026100318"
+
+    config_file = Path(__file__).with_name("config.yml")
+    config = read_yaml_config(config_file)
+
+    script, filename = generate_submission_script(
+        config,
+        _args(
+            machine="EGEON",
+            scheduler="SLURM",
+            mpi_tasks=64,
+            threads_per_mpi_task=1,
+            output="gsi.sh",
+        ),
+    )
+
+    assert filename == "gsi.sh"
+    assert script.startswith("#!/bin/bash\n")
+    assert "#SBATCH --job-name= gsiAnl\n" in script
+    assert "#SBATCH -p batch\n" in script
+    assert "#SBATCH --account= CPTEC\n" in script
+    assert "#SBATCH -t 01:00:00\n" in script
+    assert "#SBATCH --tasks-per-node 64\n" in script
+    assert "#SBATCH -N 1\n" in script
+    assert "export OMP_NUM_THREADS=1\n" in script
+    assert "module load openmpi4/4.1.1\n" in script
+    assert "cd diretorio_A\n" in script
+    assert "rm arquivo_B\n" in script
+    assert script.endswith(
+        "# Change to the working directory and execute the process.\n"
+        "cd $SLURM_SUBMIT_DIR\n"
+        "srun -n 64 -N 64 -c 1 ./gsi.exe > gsiStdout_2026100318.log\n"
+    )
 
 
 #EOC
