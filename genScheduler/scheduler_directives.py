@@ -64,10 +64,9 @@
 #
 # !REVISION HISTORY:
 # - 28th October 2023, J. G. de Mattos: Initial Version.
-# - 03rd October 2026, J. G. de Mattos: Simplified the registry implementation
-#   without changing lookup behavior.
-# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
-#   documentation.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Simplified the registry implementation without changing lookup behavior.
+#   - Restored and expanded ProTeX documentation.
 #
 # !SEE ALSO:
 # data/directives.yaml
