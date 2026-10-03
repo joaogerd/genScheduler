@@ -20,6 +20,8 @@
 #   - Added characterization tests for legacy scheduler behavior.
 #   - Characterized the historical package namespace and __all__ inconsistency
 #     before future API cleanup.
+#   - Added coverage for alternate scheduler-directive definition files used by
+#     the parser and directive registry.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
@@ -41,6 +43,7 @@ from genScheduler.script_generator import (
     generate_submission_script,
     initialize_directives,
     merge_keys,
+    parser,
     read_yaml_config,
 )
 
@@ -250,6 +253,43 @@ def test_package_namespace_preserves_historical_export_behavior():
 
     assert "generate_submission_script" in genScheduler.__all__
     assert not hasattr(genScheduler, "generate_submission_script")
+
+
+def test_custom_directives_file_is_used_by_parser_and_registry(tmp_path):
+    directives_file = tmp_path / "directives.yml"
+    directives_file.write_text(
+        """directives:
+  - name: custom_flag
+    type: str
+    required: false
+    description: Custom scheduler flag
+    scheduler_directive:
+      PBS: -X
+      SLURM: --custom
+""",
+        encoding="utf-8",
+    )
+
+    args = parser(
+        [
+            "--machine",
+            "EGEON",
+            "--scheduler",
+            "SLURM",
+            "--mpi-tasks",
+            "64",
+            "--threads-per-mpi-task",
+            "2",
+            "--custom_flag",
+            "enabled",
+        ],
+        directives_file=directives_file,
+    )
+    directives = initialize_directives(directives_file)
+
+    assert args.custom_flag == "enabled"
+    assert directives.get_directive("custom_flag", "PBS") == "-X"
+    assert directives.get_directive("custom_flag", "SLURM") == "--custom"
 
 
 #EOC
