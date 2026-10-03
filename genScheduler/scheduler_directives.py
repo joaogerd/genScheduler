@@ -1,3 +1,81 @@
+#!/usr/bin/env python
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: scheduler_directives.py
+#
+# !DESCRIPTION:
+# Provides the SchedulerDirectives registry used to map logical scheduler
+# directive names to their PBS- and SLURM-specific command-line representations.
+#
+# Directive metadata is loaded from YAML so that scheduler syntax remains
+# separated from the script-generation logic. This keeps the generator reusable
+# across machines while preserving the existing PBS/SLURM output contract.
+#
+# !INTERFACE:
+# from genScheduler.scheduler_directives import SchedulerDirectives
+#
+# directives = SchedulerDirectives()
+# directives.add_directive("queue", PBS="-q", SLURM="-p")
+# value = directives.get_directive("queue", "SLURM")
+#
+# !PUBLIC MEMBER FUNCTIONS:
+# SchedulerDirectives.__init__
+#     Creates an empty directive registry.
+#
+# SchedulerDirectives.get_directive_names
+#     Returns registered directive names in dictionary insertion order.
+#
+# SchedulerDirectives.add_directive
+#     Adds or extends scheduler-specific representations for one logical name.
+#
+# SchedulerDirectives.get_directive
+#     Returns the representation for a scheduler, or None when unavailable.
+#
+# SchedulerDirectives.load_directives_from_yaml
+#     Loads directive definitions from a YAML file.
+#
+# !ARGUMENTS:
+# directive_name
+#     STRING. Logical directive name used by genScheduler.
+#
+# directive_options
+#     KEYWORD MAPPING. Scheduler name to scheduler-specific option text.
+#
+# key
+#     STRING. Logical directive name to retrieve.
+#
+# system
+#     STRING. Scheduler identifier, currently PBS or SLURM.
+#
+# yaml_file
+#     PATH-LIKE. YAML file containing the directives list.
+#
+# !RETURN VALUE:
+# get_directive_names returns a list of strings.
+# get_directive returns a scheduler option string or None.
+# Other methods modify the registry in place and return None.
+#
+# !REMARKS:
+# yaml.FullLoader is intentionally retained here to preserve the behavior of the
+# original implementation for existing directive-definition files.
+#
+# !REVISION HISTORY:
+# 28 Oct 2023 - J. G. de Mattos - Initial version.
+# 03 Oct 2026 - OpenAI/ChatGPT - Simplified the registry implementation without
+#               changing lookup behavior.
+# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+#
+# !SEE ALSO:
+# data/directives.yaml
+# script_generator.py
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 """Scheduler directive registry used by genScheduler."""
 
 from typing import Any, Dict, List, Optional
@@ -31,11 +109,7 @@ class SchedulerDirectives:
         return None
 
     def load_directives_from_yaml(self, yaml_file: Any) -> None:
-        """Load scheduler mappings from a YAML directive definition file.
-
-        FullLoader is intentionally retained to preserve the parser behavior of
-        the original implementation for existing directive files.
-        """
+        """Load scheduler mappings from a YAML directive definition file."""
         with open(yaml_file, "r") as file:
             data = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -43,3 +117,7 @@ class SchedulerDirectives:
             directive_name = directive_data.get("name")
             scheduler_directive = directive_data.get("scheduler_directive", {})
             self.add_directive(directive_name, **scheduler_directive)
+
+
+#EOC
+#-----------------------------------------------------------------------------#
