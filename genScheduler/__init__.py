@@ -40,6 +40,8 @@
 # - 26th October 2023, J. G. de Mattos: Initial Version.
 # - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
 #   documentation without changing the historical package export behavior.
+# - 03rd October 2026, J. G. de Mattos: Removed the redundant second import of
+#   SchedulerDirectives while preserving the package namespace and __all__.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
@@ -52,7 +54,7 @@
 
 from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
-from .script_generator import SchedulerDirectives, initialize_directives, read_yaml_config, parser
+from .script_generator import initialize_directives, read_yaml_config, parser
 
 __all__ = ['ParallelProcessingInfo', 'SchedulerDirectives', 'generate_submission_script']
 
