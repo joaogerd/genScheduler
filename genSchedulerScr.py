@@ -1,71 +1,94 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------#
-#           Group on Data Assimilation Development - GDAD/CPTEC/INPE          #
+#                 genScheduler - HPC Submission Script Generator              #
 #-----------------------------------------------------------------------------#
 #BOP
 #
-# !SCRIPT: generate_submission_script.py
+# !MODULE: genSchedulerScr.py
 #
 # !DESCRIPTION:
-# This script is part of the genScheduler package, and it generates a customized
-# submission script for job scheduling systems in high-performance computing (HPC)
-# environments. It uses the provided configuration and command-line arguments to
-# create a submission script suitable for the specified scheduler (PBS or SLURM).
-# The script can be used as a standalone tool or integrated into other workflows
-# for managing HPC job submissions.
+# Command-line entry point for genScheduler.
 #
-# !CALLING SEQUENCE:
-# To execute this script, run it as a standalone Python program. The script will
-# read the configuration from the "config.yml" file and create a submission script
-# based on the specified scheduler type (PBS or SLURM) and the provided command-line
-# arguments.
+# The script parses CLI arguments, loads the selected YAML configuration,
+# delegates script construction to genScheduler.script_generator and writes the
+# generated submission script to disk.
 #
-# Example Usage:
-#   python generate_submission_script.py --machine [MachineName] --scheduler [PBS/SLURM]
-#   [--max-cores-per-node MaxCores] --mpi-tasks MpiTasks --threads-per-mpi-task ThreadsPerTask
+# The historical invocation remains valid and continues to read config.yml from
+# the current directory when --config is not supplied.
 #
-# !REVISION HISTORY: 
-# - October 26, 2023, J. G. de Mattos: Initial Version
+# !INTERFACE:
+# genSchedulerScr.py [options]
+#
+# Programmatic interface:
+#
+#     from genSchedulerScr import main
+#     main(argv=None)
+#
+# !ARGUMENTS:
+# argv
+#     OPTIONAL SEQUENCE OF STRINGS. Explicit CLI arguments for testing or
+#     embedding. When None, arguments are read from the running process.
+#
+# Important command-line arguments include:
+#     --machine
+#     --scheduler
+#     --mpi-tasks
+#     --threads-per-mpi-task
+#     --max-cores-per-node
+#     --output
+#     --config
+#
+# Additional scheduler directives are generated dynamically from
+# genScheduler/data/directives.yaml.
+#
+# !RETURN VALUE:
+# main returns None.
+#
+# !SIDE EFFECTS:
+# Reads the selected YAML configuration file.
+# Creates or replaces the generated submission-script file.
 #
 # !REMARKS:
-# - The "genScheduler" package is developed as part of the Group on Data Assimilation
-#   Development (GDAD) project at CPTEC/INPE. It simplifies the process of creating
-#   and customizing submission scripts for different HPC systems.
-# - This script is a standalone utility to generate submission scripts based on
-#   configuration and user-provided arguments, making it suitable for various HPC
-# environments.
+# The default configuration filename is config.yml for backward compatibility.
+# --config is additive and allows the user to execute genScheduler from a
+# directory different from the one containing the configuration file.
+#
+# !REVISION HISTORY:
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Made argv injectable and added --config support while preserving the
+#     legacy command-line behavior.
+#   - Restored and expanded ProTeX documentation.
+#
+# !SEE ALSO:
+# genScheduler/script_generator.py
 #
 #EOP
 #-----------------------------------------------------------------------------#
 #BOC
-from genScheduler.script_generator import read_yaml_config, generate_submission_script, parser
 
-def main():
-    """
-    Main function to generate and save a customized submission script.
+"""Command-line entry point for genScheduler."""
 
-    This function reads the user's command-line arguments, loads the configuration
-    from the "config.yml" file, generates a submission script based on the specified
-    scheduler type and provided arguments, and saves the script to a file.
+from genScheduler.script_generator import (
+    generate_submission_script,
+    parser,
+    read_yaml_config,
+)
 
-    Example Usage:
-    - Run this script to generate a submission script for job scheduling.
 
-    Returns:
-    - None
-    """
-    
-    args   = parser()
-    config = read_yaml_config('config.yml')
+def main(argv=None):
+    """Generate and save a customized scheduler submission script."""
+    args = parser(argv)
+    config = read_yaml_config(args.config)
     script, filename = generate_submission_script(config, args)
 
-    # Save the generated submission script to the generated filename
-    with open(filename, 'w') as script_file:
+    with open(filename, "w") as script_file:
         script_file.write(script)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
+
 
 #EOC
 #-----------------------------------------------------------------------------#
-
