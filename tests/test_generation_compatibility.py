@@ -1,3 +1,31 @@
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: test_generation_compatibility.py
+#
+# !DESCRIPTION:
+# Compatibility tests for PBS generation, explicit resource directives, csh environment rendering, date masks and automatic output filenames.
+#
+# !INTERFACE:
+# Executed by pytest as part of the genScheduler automated validation suite.
+#
+# !RETURN VALUE:
+# No application value is returned. Tests pass silently or fail with assertions
+# that identify compatibility or documentation regressions.
+#
+# !REVISION HISTORY:
+# - 03rd October 2026, J. G. de Mattos: Expanded compatibility coverage for PBS, shell environments and dated outputs.
+#
+# !SEE ALSO:
+# genScheduler/script_generator.py
+# .github/workflows/tests.yml
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -157,3 +185,6 @@ def test_automatic_filename_uses_job_name_and_current_timestamp(mock_datetime):
 
     assert filename == "forecast_2026-10-03_18-30-00_submission_script.sh"
     mock_datetime.now.return_value.strftime.assert_called_once_with("%Y-%m-%d_%H-%M-%S")
+
+#EOC
+#-----------------------------------------------------------------------------#
