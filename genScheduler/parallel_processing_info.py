@@ -64,10 +64,11 @@
 # it would alter an existing error path and is therefore a behavioral change.
 #
 # !REVISION HISTORY:
-# 28 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Refactored structure and type documentation
-#               while preserving the original numerical behavior.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+# - 28th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Refactored structure and type
+#   documentation while preserving the original numerical behavior.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation.
 #
 # !SEE ALSO:
 # script_generator.py
