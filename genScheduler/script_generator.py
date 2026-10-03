@@ -155,17 +155,17 @@
 #
 # !REVISION HISTORY:
 # - 26th October 2023, J. G. de Mattos: Initial Version.
-# - 03rd October 2026, J. G. de Mattos: Added characterization tests and
-#   refactored the module into smaller helpers while preserving generated
-#   output.
-# - 03rd October 2026, J. G. de Mattos: Added optional --config support and
-#   pathlib-based configuration paths for portability.
-# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
-#   documentation as a mandatory project documentation standard.
-# - 03rd October 2026, J. G. de Mattos: Extracted scheduler-directive rendering
-#   and output-filename resolution into focused internal helpers.
-# - 03rd October 2026, J. G. de Mattos: Separated machine selection and core
-#   resolution from script rendering while preserving warnings and errors.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Added characterization tests and refactored the module into smaller
+#     helpers while preserving generated output.
+#   - Added optional --config support and pathlib-based configuration paths for
+#     portability.
+#   - Restored and expanded ProTeX documentation as a mandatory project
+#     documentation standard.
+#   - Extracted scheduler-directive rendering and output-filename resolution
+#     into focused internal helpers.
+#   - Separated machine selection and core resolution from script rendering
+#     while preserving warnings and errors.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
