@@ -16,9 +16,10 @@
 # that identify compatibility or documentation regressions.
 #
 # !REVISION HISTORY:
-# - 03rd October 2026, J. G. de Mattos: Added characterization tests for legacy scheduler behavior.
-# - 03rd October 2026, J. G. de Mattos: Characterized the historical package
-#   namespace and __all__ inconsistency before future API cleanup.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Added characterization tests for legacy scheduler behavior.
+#   - Characterized the historical package namespace and __all__ inconsistency
+#     before future API cleanup.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
