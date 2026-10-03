@@ -166,6 +166,10 @@ The repository includes characterization tests for:
 
 GitHub Actions runs the suite on pull requests and on pushes to main.
 
+## Contributing
+
+Development and refactoring rules, including the mandatory ProTeX documentation and revision-history conventions, are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 The repository currently retains the historical MIT metadata and an incomplete LICENSE file. The project owner has decided to migrate genScheduler to a GNU license. That migration will be made as a separate explicit change so the exact GNU license family/version can be selected and applied consistently to the LICENSE file, package metadata, source documentation and README.
