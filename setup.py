@@ -39,12 +39,12 @@
 #
 # !REVISION HISTORY:
 # - 26th October 2023, J. G. de Mattos: Initial Version.
-# - 03rd October 2026, J. G. de Mattos: Removed unnecessary external
-#   dependencies and used README.md as package long description.
-# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
-#   documentation.
-# - 03rd October 2026, J. G. de Mattos: Added a minimal PEP 517 build
-#   configuration while preserving setup.py compatibility.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Removed unnecessary external dependencies and used README.md as package
+#     long description.
+#   - Restored and expanded ProTeX documentation.
+#   - Added a minimal PEP 517 build configuration while preserving setup.py
+#     compatibility.
 #
 # !SEE ALSO:
 # README.md
