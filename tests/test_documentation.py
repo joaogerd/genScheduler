@@ -22,10 +22,11 @@
 # attributed to J. G. de Mattos.
 #
 # !REVISION HISTORY:
-# - 03rd October 2026, J. G. de Mattos: Added automated enforcement of the
-#   ProTeX documentation and revision-history contract.
-# - 03rd October 2026, J. G. de Mattos: Extended the documentation contract to
-#   every Python source file in the repository.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Added automated enforcement of the ProTeX documentation and
+#     revision-history contract.
+#   - Extended the documentation contract to every Python source file in the
+#     repository.
 #
 # !SEE ALSO:
 # README.md
