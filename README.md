@@ -119,6 +119,28 @@ machine.<NAME> contains machine-specific values such as max_cores_per_node, queu
     └── test_cli.py
 ~~~
 
+## Documentation standard
+
+Source-code documentation is part of the project contract, not optional cleanup. genScheduler uses the ProTeX convention maintained in [joaogerd/ProTexApp](https://github.com/joaogerd/ProTexApp).
+
+The main Python source files must preserve a complete ProTeX prologue using Python comment markers, including at least:
+
+~~~text
+#BOP
+# !MODULE: ...
+# !DESCRIPTION: ...
+# !INTERFACE: ...
+# !REVISION HISTORY: ...
+#EOP
+#BOC
+...
+#EOC
+~~~
+
+Additional markers such as `!ARGUMENTS`, `!RETURN VALUE`, `!SIDE EFFECTS`, `!REMARKS` and `!SEE ALSO` should be used whenever they clarify the contract of a module. Refactoring must update this documentation rather than remove it.
+
+The CI suite includes a documentation-contract test so accidental removal of the required ProTeX structure is detected automatically.
+
 ## Compatibility policy
 
 The current generated script is treated as the compatibility reference. Refactoring therefore preserves the existing parallel calculations, directive formatting, precedence rules, error messages covered by characterization tests, shell sections, launcher commands and output content.
@@ -142,4 +164,4 @@ GitHub Actions runs the suite on every push to main and refactor branches and on
 
 ## License
 
-The repository currently contains a LICENSE file and package metadata declaring MIT. The LICENSE file should be reviewed before a release to ensure the intended license text is present.
+The repository currently retains the historical MIT metadata and an incomplete LICENSE file. The project owner has decided to migrate genScheduler to a GNU license. That migration will be made as a separate explicit change so the exact GNU license family/version can be selected and applied consistently to the LICENSE file, package metadata, source documentation and README.
