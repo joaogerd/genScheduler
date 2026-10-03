@@ -164,7 +164,7 @@ The repository includes characterization tests for:
 - portable --config handling;
 - end-to-end CLI generation.
 
-GitHub Actions runs the suite on every push to main and refactor branches and on pull requests.
+GitHub Actions runs the suite on pull requests and on pushes to main.
 
 ## License
 
