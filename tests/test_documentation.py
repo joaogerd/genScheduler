@@ -27,6 +27,8 @@
 #     revision-history contract.
 #   - Extended the documentation contract to every Python source file in the
 #     repository.
+#   - Enforced grouping of same-day revision entries under a single date and
+#     author heading.
 #
 # !SEE ALSO:
 # README.md
@@ -37,6 +39,7 @@
 #BOC
 
 from pathlib import Path
+import re
 
 import pytest
 
@@ -85,6 +88,16 @@ def test_python_sources_preserve_protex_documentation_contract(source_file):
     assert "J. G. de Mattos:" in revision_history, (
         f"{source_file.relative_to(PROJECT_ROOT)} must attribute revision-history "
         "entries to J. G. de Mattos"
+    )
+
+    dated_entries = re.findall(
+        r"^# - (.+?), J\. G\. de Mattos:",
+        revision_history,
+        flags=re.MULTILINE,
+    )
+    assert len(dated_entries) == len(set(dated_entries)), (
+        f"{source_file.relative_to(PROJECT_ROOT)} repeats a revision date. "
+        "Group changes from the same day as subitems under one date."
     )
 
 
