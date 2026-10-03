@@ -81,6 +81,9 @@
 # _resolve_output_filename
 #     Returns the explicit output path or the historical timestamped filename.
 #
+# _append_hpc_configuration
+#     Renders the additional HPC section in the historical command order.
+#
 # _append_environment
 #     Renders configured environment-variable commands.
 #
@@ -166,6 +169,8 @@
 #     into focused internal helpers.
 #   - Separated machine selection and core resolution from script rendering
 #     while preserving warnings and errors.
+#   - Encapsulated the additional HPC configuration section while preserving
+#     the exact ulimit, environment, module and command ordering.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
@@ -509,6 +514,27 @@ def _append_commands(script: str, commands: Sequence[str]) -> str:
     return script
 
 
+def _append_hpc_configuration(
+    script: str,
+    extra_info: Mapping[str, Any],
+    export: Sequence[Mapping[str, Any]],
+    modules: Sequence[str],
+    commands: Sequence[str],
+    shell_name: str,
+) -> str:
+    """Append the historical additional HPC configuration section."""
+    script += "\n# Additional HPC Configuration\n"
+
+    for option in create_ulimit_command(extra_info):
+        script += "ulimit {}\n".format(option)
+
+    script = _append_environment(script, export, shell_name)
+    script = _append_modules(script, modules)
+    script = _append_commands(script, commands)
+
+    return script
+
+
 def _render_executable(extra_info: Mapping[str, Any]) -> str:
     executable = extra_info.get("exec")
     if not executable:
@@ -600,14 +626,14 @@ def generate_submission_script(
             processing_info,
         )
 
-        script += "\n# Additional HPC Configuration\n"
-
-        for option in create_ulimit_command(extra_info):
-            script += "ulimit {}\n".format(option)
-
-        script = _append_environment(script, export, shell_name)
-        script = _append_modules(script, modules)
-        script = _append_commands(script, commands)
+        script = _append_hpc_configuration(
+            script,
+            extra_info,
+            export,
+            modules,
+            commands,
+            shell_name,
+        )
 
         executable = _render_executable(extra_info)
         script = _append_launcher(script, scheduler_type, processing_info, executable)
