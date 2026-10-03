@@ -142,13 +142,14 @@
 #   historical default of reading config.yml from the current directory.
 #
 # !REVISION HISTORY:
-# 26 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Added characterization tests and refactored the
-#               module into smaller helpers while preserving generated output.
-# 03 Oct 2026 - OpenAI/ChatGPT - Added optional --config support and pathlib-based
-#               configuration paths for portability.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation as a
-#               mandatory project documentation standard.
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Added characterization tests and
+#   refactored the module into smaller helpers while preserving generated
+#   output.
+# - 03rd October 2026, J. G. de Mattos: Added optional --config support and
+#   pathlib-based configuration paths for portability.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation as a mandatory project documentation standard.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
