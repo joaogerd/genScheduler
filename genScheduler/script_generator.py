@@ -1,3 +1,165 @@
+#!/usr/bin/env python
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: script_generator.py
+#
+# !DESCRIPTION:
+# Implements the core genScheduler workflow for generating PBS and SLURM
+# submission scripts from package directive definitions, a user YAML
+# configuration, machine-specific settings and command-line overrides.
+#
+# The module is intentionally conservative: the generated script is treated as
+# an external compatibility contract. Refactoring may improve structure,
+# portability and testability, but must not silently change directive syntax,
+# precedence, parallel calculations, launcher commands, section ordering or
+# error behavior already relied upon by users.
+#
+# Configuration is resolved from three sources:
+#
+#   1. scheduler defaults in the user YAML file;
+#   2. machine-specific values in the same YAML file;
+#   3. explicit command-line arguments.
+#
+# For recognized scheduler directives the precedence is:
+#
+#   scheduler configuration < machine configuration < command line
+#
+# !INTERFACE:
+# Public routines:
+#
+# build_argument_parser(directives_file=None)
+#     Builds and returns the argparse.ArgumentParser without consuming argv.
+#
+# parser(argv=None, directives_file=None)
+#     Parses command-line arguments. With argv=None it behaves exactly like the
+#     historical CLI and reads arguments from the running process.
+#
+# initialize_directives(directives_file=None)
+#     Creates the SchedulerDirectives registry and loads packaged or custom
+#     directive definitions.
+#
+# calculate_variables(max_cores_per_node, mpi_tasks, threads_per_mpi_task)
+#     Preserves the legacy standalone resource calculation helper.
+#
+# read_yaml_config(file_path)
+#     Loads the user YAML configuration and preserves legacy CLI error handling.
+#
+# is_key_not_present(dictionary, key)
+#     Compatibility helper used when deciding whether derived scheduler
+#     directives need to be added automatically.
+#
+# create_ulimit_command(data)
+#     Converts ulimit_* entries to shell options in mapping iteration order.
+#
+# merge_keys(standard_keys, *dictionaries)
+#     Returns recognized directive names. The historical set-based behavior is
+#     intentionally retained, so directive-line order is not guaranteed.
+#
+# generate_submission_script(config, args, directives_file=None)
+#     Generates the final submission script text and output filename.
+#
+# Internal helpers:
+#
+# _read_directive_definitions
+#     Loads CLI metadata from the directives YAML file.
+#
+# _configured_value
+#     Resolves one directive using config < machine < CLI precedence.
+#
+# _append_environment
+#     Renders configured environment-variable commands.
+#
+# _append_modules
+#     Renders module-load commands.
+#
+# _append_commands
+#     Renders machine-specific shell commands.
+#
+# _render_executable
+#     Resolves the executable command and optional stdout redirection.
+#
+# _append_launcher
+#     Appends the PBS aprun or SLURM srun execution section.
+#
+# !ARGUMENTS:
+# config
+#     MAPPING. Parsed user configuration with scheduler and machine sections.
+#
+# args
+#     argparse.Namespace. Parsed CLI arguments.
+#
+# directives_file
+#     OPTIONAL PATH-LIKE. Alternate scheduler-directive definition file. When
+#     omitted, genScheduler/data/directives.yaml is used.
+#
+# argv
+#     OPTIONAL SEQUENCE OF STRINGS. Explicit command-line argument list used for
+#     testing or embedding. None means use the process command line.
+#
+# file_path
+#     PATH-LIKE. User YAML configuration path.
+#
+# max_cores_per_node, mpi_tasks, threads_per_mpi_task
+#     INTEGER values used by the legacy parallel-resource calculations.
+#
+# !RETURN VALUE:
+# generate_submission_script returns:
+#
+#     (script, filename)
+#
+# where script is the complete shell-script text and filename is either the
+# explicit --output value or the historical generated filename.
+#
+# parser returns argparse.Namespace.
+# build_argument_parser returns argparse.ArgumentParser.
+# initialize_directives returns SchedulerDirectives.
+# read_yaml_config returns the parsed YAML object.
+#
+# !SIDE EFFECTS:
+# read_yaml_config prints an error and exits with status 1 for missing/unreadable
+# configuration files, preserving legacy CLI behavior.
+#
+# generate_submission_script prints compatibility warnings for missing machine
+# definitions and exits with status 1 for ValueError conditions currently
+# covered by characterization tests.
+#
+# !REMARKS:
+# - Scheduler directive order is intentionally not made deterministic because
+#   merge_keys historically builds the result with a set. Changing that order
+#   would modify an observable output and requires a separate behavioral change.
+#
+# - The shell-name check intentionally preserves the historical token "tsh".
+#   Replacing it with "tcsh" could alter environment rendering and therefore is
+#   not part of a behavior-preserving refactor.
+#
+# - Parallel formulas are delegated to ParallelProcessingInfo and are preserved
+#   exactly because they directly affect generated launcher lines.
+#
+# - --config is an additive portability feature. Omitting it preserves the
+#   historical default of reading config.yml from the current directory.
+#
+# !REVISION HISTORY:
+# 26 Oct 2023 - J. G. de Mattos - Initial version.
+# 03 Oct 2026 - OpenAI/ChatGPT - Added characterization tests and refactored the
+#               module into smaller helpers while preserving generated output.
+# 03 Oct 2026 - OpenAI/ChatGPT - Added optional --config support and pathlib-based
+#               configuration paths for portability.
+# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation as a
+#               mandatory project documentation standard.
+#
+# !SEE ALSO:
+# parallel_processing_info.py
+# scheduler_directives.py
+# data/directives.yaml
+# genSchedulerScr.py
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 """Generate PBS and SLURM submission scripts.
 
 This module keeps the legacy genScheduler rendering contract while separating
@@ -392,3 +554,6 @@ def generate_submission_script(
     except ValueError as exc:
         print("Error: {}".format(str(exc)))
         raise SystemExit(1)
+
+#EOC
+#-----------------------------------------------------------------------------#
