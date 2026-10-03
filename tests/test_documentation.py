@@ -29,6 +29,8 @@
 #     repository.
 #   - Enforced grouping of same-day revision entries under a single date and
 #     author heading.
+#   - Restricted discovery to project-owned Python sources so local virtual
+#     environments and third-party files are not inspected.
 #
 # !SEE ALSO:
 # README.md
@@ -47,9 +49,11 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 PROTEX_SOURCE_FILES = sorted(
-    path
-    for path in PROJECT_ROOT.rglob("*.py")
-    if ".git" not in path.parts
+    [
+        *(PROJECT_ROOT / "genScheduler").rglob("*.py"),
+        *(PROJECT_ROOT / "tests").rglob("*.py"),
+        *PROJECT_ROOT.glob("*.py"),
+    ]
 )
 
 REQUIRED_MARKERS = [
