@@ -63,10 +63,11 @@
 # original implementation for existing directive-definition files.
 #
 # !REVISION HISTORY:
-# 28 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Simplified the registry implementation without
-#               changing lookup behavior.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+# - 28th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Simplified the registry implementation
+#   without changing lookup behavior.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation.
 #
 # !SEE ALSO:
 # data/directives.yaml
