@@ -69,6 +69,12 @@
 # _configured_value
 #     Resolves one directive using config < machine < CLI precedence.
 #
+# _resolve_machine_configuration
+#     Selects the machine block and preserves the historical warning behavior.
+#
+# _resolve_max_cores_per_node
+#     Resolves the CLI-or-machine core count and preserves the existing error.
+#
 # _render_scheduler_directives
 #     Renders scheduler directive lines and returns the effective job name.
 #
@@ -158,6 +164,8 @@
 #   documentation as a mandatory project documentation standard.
 # - 03rd October 2026, J. G. de Mattos: Extracted scheduler-directive rendering
 #   and output-filename resolution into focused internal helpers.
+# - 03rd October 2026, J. G. de Mattos: Separated machine selection and core
+#   resolution from script rendering while preserving warnings and errors.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
@@ -375,6 +383,37 @@ def _configured_value(
     return value
 
 
+def _resolve_machine_configuration(
+    config: Mapping[str, Any],
+    args: argparse.Namespace,
+) -> Tuple[str, Mapping[str, Any]]:
+    """Return the selected machine configuration with legacy warning behavior."""
+    machine_name = getattr(args, "machine")
+    machine = config["machine"].get(machine_name, {})
+
+    if not machine:
+        print("Machine configuration is empty. Please check your configuration.")
+        print("Machine name: {}".format(machine_name))
+
+    return machine_name, machine
+
+
+def _resolve_max_cores_per_node(
+    args: argparse.Namespace,
+    machine: Mapping[str, Any],
+) -> int:
+    """Resolve max cores using CLI-over-machine precedence."""
+    max_cores_per_node = (
+        args.max_cores_per_node
+        if args.max_cores_per_node is not None
+        else machine.get("max_cores_per_node")
+    )
+    if max_cores_per_node is None:
+        raise ValueError("Maximum cores per node must be defined.")
+
+    return max_cores_per_node
+
+
 def _render_scheduler_directives(
     script: str,
     scheduler: SchedulerDirectives,
@@ -534,8 +573,7 @@ def generate_submission_script(
         directives = scheduler_config.get("directives", [])
         extra_info = scheduler_config.get("extraInfo", [])
 
-        machine_name = getattr(args, "machine")
-        machine = config["machine"].get(machine_name, {})
+        _, machine = _resolve_machine_configuration(config, args)
         export = machine.get("export", [])
         modules = machine.get("modules", [])
         commands = machine.get("commands", [])
@@ -543,17 +581,7 @@ def generate_submission_script(
         shebang = directives.get("shell", "/bin/bash")
         shell_name = os.path.basename(shebang)
 
-        if not machine:
-            print("Machine configuration is empty. Please check your configuration.")
-            print("Machine name: {}".format(machine_name))
-
-        max_cores_per_node = (
-            args.max_cores_per_node
-            if args.max_cores_per_node is not None
-            else machine.get("max_cores_per_node")
-        )
-        if max_cores_per_node is None:
-            raise ValueError("Maximum cores per node must be defined.")
+        max_cores_per_node = _resolve_max_cores_per_node(args, machine)
 
         processing_info = ParallelProcessingInfo(
             max_cores_per_node,
