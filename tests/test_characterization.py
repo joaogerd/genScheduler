@@ -17,6 +17,8 @@
 #
 # !REVISION HISTORY:
 # - 03rd October 2026, J. G. de Mattos: Added characterization tests for legacy scheduler behavior.
+# - 03rd October 2026, J. G. de Mattos: Characterized the historical package
+#   namespace and __all__ inconsistency before future API cleanup.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
@@ -30,6 +32,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import genScheduler
 from genScheduler.parallel_processing_info import ParallelProcessingInfo
 from genScheduler.scheduler_directives import SchedulerDirectives
 from genScheduler.script_generator import (
@@ -236,6 +239,17 @@ def test_missing_executable_exits_as_current_behavior(capsys):
 
     assert exc.value.code == 1
     assert "Error: Executable not configured." in capsys.readouterr().out
+
+def test_package_namespace_preserves_historical_export_behavior():
+    assert hasattr(genScheduler, "ParallelProcessingInfo")
+    assert hasattr(genScheduler, "SchedulerDirectives")
+    assert hasattr(genScheduler, "initialize_directives")
+    assert hasattr(genScheduler, "read_yaml_config")
+    assert hasattr(genScheduler, "parser")
+
+    assert "generate_submission_script" in genScheduler.__all__
+    assert not hasattr(genScheduler, "generate_submission_script")
+
 
 #EOC
 #-----------------------------------------------------------------------------#
