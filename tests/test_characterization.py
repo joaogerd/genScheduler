@@ -1,3 +1,31 @@
+#-----------------------------------------------------------------------------#
+#                 genScheduler - HPC Submission Script Generator              #
+#-----------------------------------------------------------------------------#
+#BOP
+#
+# !MODULE: test_characterization.py
+#
+# !DESCRIPTION:
+# Characterization tests that freeze the observable behavior of the original genScheduler implementation before and during refactoring.
+#
+# !INTERFACE:
+# Executed by pytest as part of the genScheduler automated validation suite.
+#
+# !RETURN VALUE:
+# No application value is returned. Tests pass silently or fail with assertions
+# that identify compatibility or documentation regressions.
+#
+# !REVISION HISTORY:
+# - 03rd October 2026, J. G. de Mattos: Added characterization tests for legacy scheduler behavior.
+#
+# !SEE ALSO:
+# genScheduler/script_generator.py
+# .github/workflows/tests.yml
+#
+#EOP
+#-----------------------------------------------------------------------------#
+#BOC
+
 from types import SimpleNamespace
 
 import pytest
@@ -208,3 +236,6 @@ def test_missing_executable_exits_as_current_behavior(capsys):
 
     assert exc.value.code == 1
     assert "Error: Executable not configured." in capsys.readouterr().out
+
+#EOC
+#-----------------------------------------------------------------------------#
