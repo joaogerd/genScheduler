@@ -65,10 +65,10 @@
 #
 # !REVISION HISTORY:
 # - 28th October 2023, J. G. de Mattos: Initial Version.
-# - 03rd October 2026, J. G. de Mattos: Refactored structure and type
-#   documentation while preserving the original numerical behavior.
-# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
-#   documentation.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Refactored structure and type documentation while preserving the original
+#     numerical behavior.
+#   - Restored and expanded ProTeX documentation.
 #
 # !SEE ALSO:
 # script_generator.py
