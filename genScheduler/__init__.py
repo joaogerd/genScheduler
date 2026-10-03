@@ -37,9 +37,9 @@
 # refactoring.
 #
 # !REVISION HISTORY:
-# 26 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation
-#               without changing the historical package export behavior.
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation without changing the historical package export behavior.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
