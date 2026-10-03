@@ -69,6 +69,12 @@
 # _configured_value
 #     Resolves one directive using config < machine < CLI precedence.
 #
+# _render_scheduler_directives
+#     Renders scheduler directive lines and returns the effective job name.
+#
+# _resolve_output_filename
+#     Returns the explicit output path or the historical timestamped filename.
+#
 # _append_environment
 #     Renders configured environment-variable commands.
 #
@@ -150,6 +156,8 @@
 #   pathlib-based configuration paths for portability.
 # - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
 #   documentation as a mandatory project documentation standard.
+# - 03rd October 2026, J. G. de Mattos: Extracted scheduler-directive rendering
+#   and output-filename resolution into focused internal helpers.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
@@ -367,6 +375,66 @@ def _configured_value(
     return value
 
 
+def _render_scheduler_directives(
+    script: str,
+    scheduler: SchedulerDirectives,
+    scheduler_type: str,
+    directives: Mapping[str, Any],
+    machine: Mapping[str, Any],
+    args: argparse.Namespace,
+    processing_info: ParallelProcessingInfo,
+) -> Tuple[str, Any]:
+    """Render scheduler directives and return the effective job name."""
+    standard_directives = scheduler.get_directive_names()
+    directives_args = {
+        key: value for key, value in vars(args).items() if value is not None
+    }
+    all_directives = merge_keys(
+        standard_directives, directives_args, directives, machine
+    )
+
+    job_name = scheduler_type
+
+    for directive in all_directives:
+        value = _configured_value(directive, directives, machine, args)
+
+        if directive == "job_name":
+            job_name = value
+
+        scheduler_option = scheduler.get_directive(directive, scheduler_type)
+        if scheduler_option:
+            script += "{} {} {}\n".format(
+                scheduler.get_directive("hash", scheduler_type),
+                scheduler_option,
+                value,
+            )
+
+    if is_key_not_present(directives, "tasks_per_node"):
+        script += "{} {} {}\n".format(
+            scheduler.get_directive("hash", scheduler_type),
+            scheduler.get_directive("tasks_per_node", scheduler_type),
+            processing_info.tasks_per_node,
+        )
+
+    if is_key_not_present(directives, "node_count"):
+        script += "{} {} {}\n".format(
+            scheduler.get_directive("hash", scheduler_type),
+            scheduler.get_directive("node_count", scheduler_type),
+            processing_info.nodes,
+        )
+
+    return script, job_name
+
+
+def _resolve_output_filename(args: argparse.Namespace, job_name: Any) -> str:
+    """Return the explicit output path or the historical timestamped filename."""
+    if args.output:
+        return args.output
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    return "{}_{}_submission_script.sh".format(job_name, timestamp)
+
+
 def _append_environment(
     script: str,
     export: Sequence[Mapping[str, Any]],
@@ -493,44 +561,16 @@ def generate_submission_script(
             args.threads_per_mpi_task,
         )
 
-        standard_directives = scheduler.get_directive_names()
-        directives_args = {
-            key: value for key, value in vars(args).items() if value is not None
-        }
-        all_directives = merge_keys(
-            standard_directives, directives_args, directives, machine
-        )
-
         script = "#!{}\n".format(shebang)
-        job_name = scheduler_type
-
-        for directive in all_directives:
-            value = _configured_value(directive, directives, machine, args)
-
-            if directive == "job_name":
-                job_name = value
-
-            scheduler_option = scheduler.get_directive(directive, scheduler_type)
-            if scheduler_option:
-                script += "{} {} {}\n".format(
-                    scheduler.get_directive("hash", scheduler_type),
-                    scheduler_option,
-                    value,
-                )
-
-        if is_key_not_present(directives, "tasks_per_node"):
-            script += "{} {} {}\n".format(
-                scheduler.get_directive("hash", scheduler_type),
-                scheduler.get_directive("tasks_per_node", scheduler_type),
-                processing_info.tasks_per_node,
-            )
-
-        if is_key_not_present(directives, "node_count"):
-            script += "{} {} {}\n".format(
-                scheduler.get_directive("hash", scheduler_type),
-                scheduler.get_directive("node_count", scheduler_type),
-                processing_info.nodes,
-            )
+        script, job_name = _render_scheduler_directives(
+            script,
+            scheduler,
+            scheduler_type,
+            directives,
+            machine,
+            args,
+            processing_info,
+        )
 
         script += "\n# Additional HPC Configuration\n"
 
@@ -544,11 +584,7 @@ def generate_submission_script(
         executable = _render_executable(extra_info)
         script = _append_launcher(script, scheduler_type, processing_info, executable)
 
-        if args.output:
-            filename = args.output
-        else:
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = "{}_{}_submission_script.sh".format(job_name, timestamp)
+        filename = _resolve_output_filename(args, job_name)
 
         return script, filename
 
