@@ -5,14 +5,12 @@ configuration loading, CLI construction, and script rendering into small helpers
 The generated text intentionally preserves the historical formatting.
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import yaml
 
@@ -20,13 +18,15 @@ from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
 
 
+PathLike = Union[str, os.PathLike]
+
 _PACKAGE_DIR = Path(__file__).resolve().parent
 _DEFAULT_DIRECTIVES_FILE = _PACKAGE_DIR / "data" / "directives.yaml"
 
 
 def _read_directive_definitions(
-    directives_file: str | os.PathLike[str] | None = None,
-) -> list[dict[str, Any]]:
+    directives_file: Optional[PathLike] = None,
+) -> List[Mapping[str, Any]]:
     """Load CLI/directive metadata from the package YAML file.
 
     A custom path is accepted primarily for testing and embedding. Omitting it
@@ -40,7 +40,7 @@ def _read_directive_definitions(
 
 
 def build_argument_parser(
-    directives_file: str | os.PathLike[str] | None = None,
+    directives_file: Optional[PathLike] = None,
 ) -> argparse.ArgumentParser:
     """Build the command-line parser without consuming process arguments."""
     directive_definitions = _read_directive_definitions(directives_file)
@@ -90,7 +90,7 @@ def build_argument_parser(
     for entry in directive_definitions:
         name = entry["name"]
         argument_parser.add_argument(
-            f"--{name}",
+            "--" + name,
             type=type_mapping.get(entry["type"], str),
             required=entry["required"],
             help=entry["description"],
@@ -100,8 +100,8 @@ def build_argument_parser(
 
 
 def parser(
-    argv: Sequence[str] | None = None,
-    directives_file: str | os.PathLike[str] | None = None,
+    argv: Optional[Sequence[str]] = None,
+    directives_file: Optional[PathLike] = None,
 ) -> argparse.Namespace:
     """Parse command-line arguments.
 
@@ -113,7 +113,7 @@ def parser(
 
 
 def initialize_directives(
-    directives_file: str | os.PathLike[str] | None = None,
+    directives_file: Optional[PathLike] = None,
 ) -> SchedulerDirectives:
     """Create the scheduler-directive registry used by script generation."""
     directives = SchedulerDirectives()
@@ -128,7 +128,7 @@ def calculate_variables(
     max_cores_per_node: int,
     mpi_tasks: int,
     threads_per_mpi_task: int,
-) -> tuple[int, int, int]:
+) -> Tuple[int, int, int]:
     """Return the legacy tasks_per_node, pes and nodes calculation."""
     tasks_per_node = max_cores_per_node // threads_per_mpi_task
     pes = mpi_tasks // threads_per_mpi_task
@@ -136,16 +136,16 @@ def calculate_variables(
     return tasks_per_node, pes, nodes
 
 
-def read_yaml_config(file_path: str | os.PathLike[str]) -> Any:
+def read_yaml_config(file_path: PathLike) -> Any:
     """Read a YAML configuration file, preserving the legacy CLI error contract."""
     try:
         with Path(file_path).open("r") as yml_file:
             return yaml.safe_load(yml_file)
     except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
+        print("Error: The file '{}' was not found.".format(file_path))
         raise SystemExit(1)
     except Exception as exc:
-        print(f"Error while reading the YAML file: {str(exc)}")
+        print("Error while reading the YAML file: {}".format(str(exc)))
         raise SystemExit(1)
 
 
@@ -154,28 +154,28 @@ def is_key_not_present(dictionary: Mapping[str, Any], key: str) -> bool:
     return key not in dictionary
 
 
-def create_ulimit_command(data: Mapping[str, Any]) -> list[str]:
+def create_ulimit_command(data: Mapping[str, Any]) -> List[str]:
     """Convert ulimit_* configuration entries into shell options."""
-    ulimit_commands: list[str] = []
+    ulimit_commands = []
 
     for key, value in data.items():
         if key.startswith("ulimit_"):
             resource = key.replace("ulimit_", "")
-            ulimit_commands.append(f"-{resource} {value}")
+            ulimit_commands.append("-{} {}".format(resource, value))
 
     return ulimit_commands
 
 
 def merge_keys(
     standard_keys: Iterable[str], *dictionaries: Mapping[str, Any]
-) -> list[str]:
+) -> List[str]:
     """Return configured keys that are recognized scheduler directives.
 
     The set-based implementation is intentionally retained because the historical
     code did not define an ordering contract for scheduler directive lines.
     """
     standard_keys = set(standard_keys)
-    merged_keys: set[str] = set()
+    merged_keys = set()
 
     for dictionary in dictionaries:
         merged_keys.update(key for key in dictionary.keys() if key in standard_keys)
@@ -217,8 +217,8 @@ def _append_environment(
 
     for item in export:
         for key, value in item.items():
-            rendered_value = " " + str(value) if command == "setenv" else f"={value}"
-            script += f"{command} {key}{rendered_value}\n"
+            rendered_value = " " + str(value) if command == "setenv" else "=" + str(value)
+            script += "{} {}{}\n".format(command, key, rendered_value)
 
     return script
 
@@ -227,7 +227,7 @@ def _append_modules(script: str, modules: Sequence[str]) -> str:
     if modules:
         script += "\n# Load essential modules\n"
         for module in modules:
-            script += f"module load {module}\n"
+            script += "module load {}\n".format(module)
     return script
 
 
@@ -235,7 +235,7 @@ def _append_commands(script: str, commands: Sequence[str]) -> str:
     if commands:
         script += "\n# Execute necessary shell commands\n"
         for command in commands:
-            script += f"{command}\n"
+            script += "{}\n".format(command)
     return script
 
 
@@ -268,16 +268,22 @@ def _append_launcher(
     if scheduler_type == "PBS":
         script += "cd $PBS_O_WORKDIR\n"
         script += (
-            f"aprun -n {processing_info.pes} "
-            f"-N {processing_info.tasks_per_node} "
-            f"-d {processing_info.threads_per_mpi_task} ./{executable}\n"
+            "aprun -n {} -N {} -d {} ./{}\n".format(
+                processing_info.pes,
+                processing_info.tasks_per_node,
+                processing_info.threads_per_mpi_task,
+                executable,
+            )
         )
     elif scheduler_type == "SLURM":
         script += "cd $SLURM_SUBMIT_DIR\n"
         script += (
-            f"srun -n {processing_info.pes} "
-            f"-N {processing_info.tasks_per_node} "
-            f"-c {processing_info.threads_per_mpi_task} ./{executable}\n"
+            "srun -n {} -N {} -c {} ./{}\n".format(
+                processing_info.pes,
+                processing_info.tasks_per_node,
+                processing_info.threads_per_mpi_task,
+                executable,
+            )
         )
 
     return script
@@ -286,8 +292,8 @@ def _append_launcher(
 def generate_submission_script(
     config: Mapping[str, Any],
     args: argparse.Namespace,
-    directives_file: str | os.PathLike[str] | None = None,
-) -> tuple[str, str]:
+    directives_file: Optional[PathLike] = None,
+) -> Tuple[str, str]:
     """Generate a submission script while preserving legacy output semantics."""
     try:
         scheduler = initialize_directives(directives_file)
@@ -308,7 +314,7 @@ def generate_submission_script(
 
         if not machine:
             print("Machine configuration is empty. Please check your configuration.")
-            print(f"Machine name: {machine_name}")
+            print("Machine name: {}".format(machine_name))
 
         max_cores_per_node = (
             args.max_cores_per_node
@@ -332,7 +338,7 @@ def generate_submission_script(
             standard_directives, directives_args, directives, machine
         )
 
-        script = f"#!{shebang}\n"
+        script = "#!{}\n".format(shebang)
         job_name = scheduler_type
 
         for directive in all_directives:
@@ -343,29 +349,30 @@ def generate_submission_script(
 
             scheduler_option = scheduler.get_directive(directive, scheduler_type)
             if scheduler_option:
-                script += (
-                    f"{scheduler.get_directive('hash', scheduler_type)} "
-                    f"{scheduler_option} {value}\n"
+                script += "{} {} {}\n".format(
+                    scheduler.get_directive("hash", scheduler_type),
+                    scheduler_option,
+                    value,
                 )
 
         if is_key_not_present(directives, "tasks_per_node"):
-            script += (
-                f"{scheduler.get_directive('hash', scheduler_type)} "
-                f"{scheduler.get_directive('tasks_per_node', scheduler_type)} "
-                f"{processing_info.tasks_per_node}\n"
+            script += "{} {} {}\n".format(
+                scheduler.get_directive("hash", scheduler_type),
+                scheduler.get_directive("tasks_per_node", scheduler_type),
+                processing_info.tasks_per_node,
             )
 
         if is_key_not_present(directives, "node_count"):
-            script += (
-                f"{scheduler.get_directive('hash', scheduler_type)} "
-                f"{scheduler.get_directive('node_count', scheduler_type)} "
-                f"{processing_info.nodes}\n"
+            script += "{} {} {}\n".format(
+                scheduler.get_directive("hash", scheduler_type),
+                scheduler.get_directive("node_count", scheduler_type),
+                processing_info.nodes,
             )
 
         script += "\n# Additional HPC Configuration\n"
 
         for option in create_ulimit_command(extra_info):
-            script += f"ulimit {option}\n"
+            script += "ulimit {}\n".format(option)
 
         script = _append_environment(script, export, shell_name)
         script = _append_modules(script, modules)
@@ -378,10 +385,10 @@ def generate_submission_script(
             filename = args.output
         else:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"{job_name}_{timestamp}_submission_script.sh"
+            filename = "{}_{}_submission_script.sh".format(job_name, timestamp)
 
         return script, filename
 
     except ValueError as exc:
-        print(f"Error: {str(exc)}")
+        print("Error: {}".format(str(exc)))
         raise SystemExit(1)
