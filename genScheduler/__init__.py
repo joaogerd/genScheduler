@@ -38,10 +38,11 @@
 #
 # !REVISION HISTORY:
 # - 26th October 2023, J. G. de Mattos: Initial Version.
-# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
-#   documentation without changing the historical package export behavior.
-# - 03rd October 2026, J. G. de Mattos: Removed the redundant second import of
-#   SchedulerDirectives while preserving the package namespace and __all__.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Restored and expanded ProTeX documentation without changing the
+#     historical package export behavior.
+#   - Removed the redundant second import of SchedulerDirectives while
+#     preserving the package namespace and __all__.
 #
 # !SEE ALSO:
 # parallel_processing_info.py
