@@ -1,42 +1,82 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------#
-#           Group on Data Assimilation Development - GDAD/CPTEC/INPE          #
+#                 genScheduler - HPC Submission Script Generator              #
 #-----------------------------------------------------------------------------#
 #BOP
 #
-# !SCRIPT:
-# This is the __init__.py file for the gen_script_subm library. It serves as an
-# indicator that this directory is a Python package.
+# !MODULE: __init__.py
 #
 # !DESCRIPTION:
-# This file defines the package for generating customized submission scripts for
-# job schedulers in high-performance computing environments (HPC). The package
-# provides modules and functions to create, manage, and customize job submission
-# scripts for various HPC systems.
+# Defines the public package-level interface of genScheduler.
 #
-# !CALLING SEQUENCE:
-# This package is designed to be imported and used in other Python scripts and
-# projects for creating HPC job submission scripts.
+# The package exports the core parallel-processing model, scheduler directive
+# registry and script-generation helpers used by applications embedding
+# genScheduler.
 #
-# !REVISION HISTORY: 
-# - October 26, 2023, J. G. de Mattos: Initial Version
+# !INTERFACE:
+# from genScheduler import (
+#     ParallelProcessingInfo,
+#     SchedulerDirectives,
+#     generate_submission_script,
+#     initialize_directives,
+#     read_yaml_config,
+#     parser,
+# )
 #
-# !REMARKS:
-# - The "gen_script_subm" library is part of the Group on Data Assimilation
-#   Development (GDAD) project at CPTEC/INPE. It simplifies the process of
-#   generating and customizing submission scripts for different HPC systems.
+# !PUBLIC MEMBER FUNCTIONS:
+# ParallelProcessingInfo
+#     Parallel resource calculations used by generated launch commands.
+#
+# SchedulerDirectives
+#     Scheduler-specific directive registry.
+#
+# generate_submission_script
+#     Generates submission-script text and its output filename.
+#
+# initialize_directives
+#     Loads the scheduler directive registry.
+#
+# read_yaml_config
+#     Loads user YAML configuration.
+#
+# parser
+#     Parses command-line arguments.
+#
+# !REVISION HISTORY:
+# 26 Oct 2023 - J. G. de Mattos - Initial version.
+# 03 Oct 2026 - OpenAI/ChatGPT - Clarified and corrected package exports while
+#               preserving the established public API.
+# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+#
+# !SEE ALSO:
+# parallel_processing_info.py
+# scheduler_directives.py
+# script_generator.py
 #
 #EOP
 #-----------------------------------------------------------------------------#
 #BOC
-# Import the necessary modules and functions from within the package
+
+"""Public package interface for genScheduler."""
+
 from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
-from .script_generator import SchedulerDirectives, initialize_directives, read_yaml_config, parser
+from .script_generator import (
+    generate_submission_script,
+    initialize_directives,
+    parser,
+    read_yaml_config,
+)
 
-# Optionally, you can make functions or classes available at the package level
-__all__ = ['ParallelProcessingInfo', 'SchedulerDirectives', 'generate_submission_script']
+__all__ = [
+    "ParallelProcessingInfo",
+    "SchedulerDirectives",
+    "generate_submission_script",
+    "initialize_directives",
+    "read_yaml_config",
+    "parser",
+]
+
 
 #EOC
 #-----------------------------------------------------------------------------#
-
