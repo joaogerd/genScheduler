@@ -38,10 +38,11 @@
 # consistently to LICENSE, package metadata and documentation.
 #
 # !REVISION HISTORY:
-# 26 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Removed unnecessary external dependencies and
-#               used README.md as package long description.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Removed unnecessary external
+#   dependencies and used README.md as package long description.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation.
 #
 # !SEE ALSO:
 # README.md
