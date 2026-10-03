@@ -54,10 +54,11 @@
 # directory different from the one containing the configuration file.
 #
 # !REVISION HISTORY:
-# 26 Oct 2023 - J. G. de Mattos - Initial version.
-# 03 Oct 2026 - OpenAI/ChatGPT - Made argv injectable and added --config support
-#               while preserving the legacy command-line behavior.
-# 03 Oct 2026 - OpenAI/ChatGPT - Restored and expanded ProTeX documentation.
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos: Made argv injectable and added --config
+#   support while preserving the legacy command-line behavior.
+# - 03rd October 2026, J. G. de Mattos: Restored and expanded ProTeX
+#   documentation.
 #
 # !SEE ALSO:
 # genScheduler/script_generator.py
