@@ -105,6 +105,7 @@ machine.<NAME> contains machine-specific values such as max_cores_per_node, queu
 ~~~text
 .
 ├── .github/workflows/tests.yml
+├── .gitignore
 ├── genScheduler/
 │   ├── __init__.py
 │   ├── data/directives.yaml
@@ -112,18 +113,21 @@ machine.<NAME> contains machine-specific values such as max_cores_per_node, queu
 │   ├── scheduler_directives.py
 │   └── script_generator.py
 ├── genSchedulerScr.py
+├── pyproject.toml
 ├── setup.py
 └── tests/
     ├── config.yml
     ├── test_characterization.py
-    └── test_cli.py
+    ├── test_cli.py
+    ├── test_documentation.py
+    └── test_generation_compatibility.py
 ~~~
 
 ## Documentation standard
 
 Source-code documentation is part of the project contract, not optional cleanup. genScheduler uses the ProTeX convention maintained in [joaogerd/ProTexApp](https://github.com/joaogerd/ProTexApp).
 
-The main Python source files must preserve a complete ProTeX prologue using Python comment markers, including at least:
+Every Python source file, including tests, must preserve a complete ProTeX prologue using Python comment markers, including at least:
 
 ~~~text
 #BOP
@@ -139,7 +143,7 @@ The main Python source files must preserve a complete ProTeX prologue using Pyth
 
 Additional markers such as `!ARGUMENTS`, `!RETURN VALUE`, `!SIDE EFFECTS`, `!REMARKS` and `!SEE ALSO` should be used whenever they clarify the contract of a module. Refactoring must update this documentation rather than remove it.
 
-The CI suite includes a documentation-contract test so accidental removal of the required ProTeX structure is detected automatically.
+The CI suite discovers Python files dynamically and includes a documentation-contract test so newly added modules or tests cannot bypass the required ProTeX structure. Revision-history entries are also required to use the project attribution convention with `J. G. de Mattos`.
 
 ## Compatibility policy
 
