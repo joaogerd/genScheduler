@@ -182,6 +182,21 @@ AttributeError. Legacy node arithmetic is exact for integer inputs.
 Neither adapter changes CLI script generation; scheduler mapping follows in
 a separate change.
 
+### Scheduler resource directives (opt-in)
+
+`render_resource_directives(request, "SLURM")` in
+`genScheduler.resource_directives` produces consistent nodes, ntasks,
+ntasks-per-node and cpus-per-task options. The explicit PBS dialect uses
+PBS Professional/OpenPBS select chunks and scatter placement, not Torque
+or historical Cray directives. PBS distributes ranks evenly over nonempty
+chunks; Slurm requests a rank capacity per node.
+
+Optional config, machine and cli mappings resolve resource overrides in
+that order. Overrides must be positive integers; rank and CPU counts must
+agree with the request. Node and rank capacity overrides must be feasible.
+The legacy YAML registry and CLI output remain unchanged. Non-resource
+directives and launcher integration are separate work.
+
 ## Compatibility policy
 
 The current generated script is treated as the compatibility reference. Refactoring therefore preserves the existing parallel calculations, directive formatting, precedence rules, error messages covered by characterization tests, shell sections, launcher commands and output content.
