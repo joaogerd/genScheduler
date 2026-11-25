@@ -1,42 +1,64 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------#
-#           Group on Data Assimilation Development - GDAD/CPTEC/INPE          #
+#                 genScheduler - HPC Submission Script Generator              #
 #-----------------------------------------------------------------------------#
 #BOP
 #
-# !SCRIPT:
-# This is the __init__.py file for the gen_script_subm library. It serves as an
-# indicator that this directory is a Python package.
+# !MODULE: __init__.py
 #
 # !DESCRIPTION:
-# This file defines the package for generating customized submission scripts for
-# job schedulers in high-performance computing environments (HPC). The package
-# provides modules and functions to create, manage, and customize job submission
-# scripts for various HPC systems.
+# Initializes the genScheduler Python package and exposes the package-level
+# symbols historically made available by the project.
 #
-# !CALLING SEQUENCE:
-# This package is designed to be imported and used in other Python scripts and
-# projects for creating HPC job submission scripts.
+# This file intentionally preserves the existing import/export behavior. Any
+# inconsistency between imported names and __all__ is considered part of the
+# current package behavior and must be addressed, if desired, in a separate
+# compatibility-reviewed change.
 #
-# !REVISION HISTORY: 
-# - October 26, 2023, J. G. de Mattos: Initial Version
+# !INTERFACE:
+# import genScheduler
+#
+# Historically imported at package level:
+#     ParallelProcessingInfo
+#     SchedulerDirectives
+#     initialize_directives
+#     read_yaml_config
+#     parser
+#
+# __all__ historically declares:
+#     ParallelProcessingInfo
+#     SchedulerDirectives
+#     generate_submission_script
 #
 # !REMARKS:
-# - The "gen_script_subm" library is part of the Group on Data Assimilation
-#   Development (GDAD) project at CPTEC/INPE. It simplifies the process of
-#   generating and customizing submission scripts for different HPC systems.
+# generate_submission_script is present in __all__ but is not imported into the
+# package namespace by the historical implementation. This inconsistency is
+# documented rather than silently corrected in the behavior-preserving
+# refactoring.
+#
+# !REVISION HISTORY:
+# - 26th October 2023, J. G. de Mattos: Initial Version.
+# - 03rd October 2026, J. G. de Mattos:
+#   - Restored and expanded ProTeX documentation without changing the
+#     historical package export behavior.
+#   - Removed the redundant second import of SchedulerDirectives while
+#     preserving the package namespace and __all__.
+#
+# !SEE ALSO:
+# parallel_processing_info.py
+# scheduler_directives.py
+# script_generator.py
 #
 #EOP
 #-----------------------------------------------------------------------------#
 #BOC
-# Import the necessary modules and functions from within the package
+
 from .parallel_processing_info import ParallelProcessingInfo
 from .scheduler_directives import SchedulerDirectives
-from .script_generator import SchedulerDirectives, initialize_directives, read_yaml_config, parser
+from .script_generator import initialize_directives, read_yaml_config, parser
 
-# Optionally, you can make functions or classes available at the package level
 __all__ = ['ParallelProcessingInfo', 'SchedulerDirectives', 'generate_submission_script']
+
 
 #EOC
 #-----------------------------------------------------------------------------#
-
