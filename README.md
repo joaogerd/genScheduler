@@ -145,6 +145,31 @@ Additional markers such as `!ARGUMENTS`, `!RETURN VALUE`, `!SIDE EFFECTS`, `!REM
 
 The CI suite discovers Python files dynamically and includes a documentation-contract test so newly added modules or tests cannot bypass the required ProTeX structure. Revision-history entries are also required to use the project attribution convention with `J. G. de Mattos`.
 
+## Compute resource contract (new, opt-in)
+
+```python
+from genScheduler.resources import ResourceRequest
+
+request = ResourceRequest(mpi_tasks=160, max_cores_per_node=40,
+                          threads_per_mpi_task=2)
+assert request.total_cpus == 320
+assert request.tasks_per_node == 20
+assert request.nodes == 8
+```
+
+MPI tasks are total ranks, not CPUs. Threads are per rank. CPUs per task
+(default: threads per rank) may exceed the thread count but not be smaller.
+Node capacity is expressed in usable scheduler CPU units, which need not be
+physical cores. All quantities are positive integers; oversubscription is
+rejected. The model assumes homogeneous nodes and packed placement; tasks per
+node is a capacity and nodes is a minimum, not a placement or reservation.
+Total CPUs denotes demand, not the CPUs reserved by whole-node allocation.
+
+This is an additive contract: the historical CLI, ParallelProcessingInfo,
+launcher rendering and package exports are unchanged. No automatic conversion
+of ambiguous legacy MPI inputs is performed. Scheduler overrides and resource
+mapping will be addressed separately.
+
 ## Compatibility policy
 
 The current generated script is treated as the compatibility reference. Refactoring therefore preserves the existing parallel calculations, directive formatting, precedence rules, error messages covered by characterization tests, shell sections, launcher commands and output content.
