@@ -170,6 +170,18 @@ launcher rendering and package exports are unchanged. No automatic conversion
 of ambiguous legacy MPI inputs is performed. Scheduler overrides and resource
 mapping will be addressed separately.
 
+### Rank-based calculation adapters
+
+`ParallelProcessingInfo.from_resource_request(request)` exposes the corrected
+rank count as `pes` and derives node capacity from allocated CPUs per rank.
+`calculate_variables(max_cores_per_node, mpi_tasks, threads_per_mpi_task,
+rank_based=True)` returns the corrected (capacity, ranks, minimum nodes) tuple.
+Without opt-in, explicit legacy inputs retain their original interpretation.
+Omitted threads in ParallelProcessingInfo now default to one instead of raising
+AttributeError. Legacy node arithmetic is exact for integer inputs.
+Neither adapter changes CLI script generation; scheduler mapping follows in
+a separate change.
+
 ## Compatibility policy
 
 The current generated script is treated as the compatibility reference. Refactoring therefore preserves the existing parallel calculations, directive formatting, precedence rules, error messages covered by characterization tests, shell sections, launcher commands and output content.

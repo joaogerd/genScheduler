@@ -172,7 +172,11 @@
 #   - Encapsulated the additional HPC configuration section while preserving
 #     the exact ulimit, environment, module and command ordering.
 #
+# - 25th November 2026, J. G. de Mattos:
+#   - Added opt-in rank-based calculation using ResourceRequest.
+#
 # !SEE ALSO:
+# resources.py
 # parallel_processing_info.py
 # scheduler_directives.py
 # data/directives.yaml
@@ -199,6 +203,7 @@ from typing import Any, Iterable, List, Mapping, Optional, Sequence, Tuple, Unio
 import yaml
 
 from .parallel_processing_info import ParallelProcessingInfo
+from .resources import ResourceRequest
 from .scheduler_directives import SchedulerDirectives
 
 
@@ -312,8 +317,13 @@ def calculate_variables(
     max_cores_per_node: int,
     mpi_tasks: int,
     threads_per_mpi_task: int,
+    *,
+    rank_based: bool = False,
 ) -> Tuple[int, int, int]:
-    """Return the legacy tasks_per_node, pes and nodes calculation."""
+    """Return historical quantities by default; opt in to MPI rank semantics."""
+    if rank_based:
+        request = ResourceRequest(mpi_tasks, max_cores_per_node, threads_per_mpi_task)
+        return request.tasks_per_node, request.mpi_tasks, request.nodes
     tasks_per_node = max_cores_per_node // threads_per_mpi_task
     pes = mpi_tasks // threads_per_mpi_task
     nodes = (mpi_tasks + max_cores_per_node - 1) // max_cores_per_node

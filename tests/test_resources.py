@@ -7,7 +7,9 @@
 # !SEE ALSO:
 # genScheduler/resources.py
 # !REVISION HISTORY:
-# - 25th November 2026, J. G. de Mattos: Introduced resource contract.
+# - 25th November 2026, J. G. de Mattos:
+#   - Introduced resource contract.
+#   - Tested explicit rank-based adapter and legacy compatibility.
 #EOP
 #BOC
 
@@ -52,5 +54,40 @@ def test_immutable_request():
     request = ResourceRequest(1, 8)
     with pytest.raises(FrozenInstanceError):
         request.mpi_tasks = 2
+
+def test_rank_based_adapter_and_helper():
+    from genScheduler.parallel_processing_info import ParallelProcessingInfo
+    from genScheduler.script_generator import calculate_variables
+
+    request = ResourceRequest(160, 128, 4)
+    info = ParallelProcessingInfo.from_resource_request(request)
+    assert (info.tasks_per_node, info.pes, info.nodes) == (32, 160, 5)
+    assert (info.calculate_tasks_per_node(), info.calculate_pes(), info.calculate_nodes()) == (32, 160, 5)
+    assert calculate_variables(128, 160, 4, rank_based=True) == (32, 160, 5)
+    assert calculate_variables(128, 160, 4) == (32, 40, 2)
+    legacy = ParallelProcessingInfo(128, 160, 4)
+    assert (legacy.tasks_per_node, legacy.pes, legacy.nodes) == (32, 40, 5)
+
+
+def test_adapter_uses_reserved_cpus_not_threads_for_capacity():
+    from genScheduler.parallel_processing_info import ParallelProcessingInfo
+
+    info = ParallelProcessingInfo.from_resource_request(ResourceRequest(9, 32, 2, 4))
+    assert (info.tasks_per_node, info.pes, info.nodes) == (8, 9, 2)
+
+
+def test_legacy_omitted_threads_defaults_to_one():
+    from genScheduler.parallel_processing_info import ParallelProcessingInfo
+
+    for info in (ParallelProcessingInfo(8, 9), ParallelProcessingInfo(8, 9, None)):
+        assert (info.threads_per_mpi_task, info.tasks_per_node, info.pes, info.nodes) == (1, 8, 9, 2)
+        assert info.calculate_threads_per_mpi_task() == 1
+
+
+def test_legacy_nodes_use_exact_integer_arithmetic():
+    from genScheduler.parallel_processing_info import ParallelProcessingInfo
+
+    assert ParallelProcessingInfo(8, 2**60 + 1, 1).nodes == 2**57 + 1
+
 
 #EOC
