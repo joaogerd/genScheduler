@@ -3,7 +3,9 @@
 # !DESCRIPTION:
 # Verify scheduler resource rendering and override precedence.
 # !REVISION HISTORY:
-# - 25th November 2026, J. G. de Mattos: Initial tests.
+# - 25th November 2026, J. G. de Mattos:
+#   - Initial tests.
+#   - Covered Torque slot allocation.
 #EOP
 #BOC
 
@@ -57,7 +59,13 @@ def test_serial():
 
 def test_unsupported_dialect():
     with pytest.raises(ValueError, match="dialect"):
-        render_resource_directives(ResourceRequest(1, 64), "TORQUE")
+        render_resource_directives(ResourceRequest(1, 64), "UNKNOWN")
+
+
+def test_torque_slots():
+    assert render_resource_directives(ResourceRequest(9, 32, 2, 4), "TORQUE") == (
+        "#PBS -l nodes=2:ppn=32",
+    )
 
 
 #EOC

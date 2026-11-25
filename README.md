@@ -188,7 +188,7 @@ a separate change.
 `genScheduler.resource_directives` produces consistent nodes, ntasks,
 ntasks-per-node and cpus-per-task options. The explicit PBS dialect uses
 PBS Professional/OpenPBS select chunks and scatter placement, not Torque
-or historical Cray directives. PBS distributes ranks evenly over nonempty
+or historical Cray directives. Select TORQUE explicitly for uniform nodes:ppn CPU-slot allocation. PBS distributes ranks evenly over nonempty
 chunks; Slurm requests a rank capacity per node.
 
 Optional config, machine and cli mappings resolve resource overrides in
@@ -196,6 +196,23 @@ that order. Overrides must be positive integers; rank and CPU counts must
 agree with the request. Node and rank capacity overrides must be feasible.
 The legacy YAML registry and CLI output remain unchanged. Non-resource
 directives and launcher integration are separate work.
+
+### Portable job options (opt-in)
+
+`genScheduler.job_directives.render_job_directives` accepts SLURM, PBS
+(OpenPBS/PBS Professional), and TORQUE. It resolves config < machine < CLI
+and renders deterministic job options. Boolean options use actual booleans.
+Unsupported or site-dependent options fail explicitly rather than being
+silently rendered. Values currently use a conservative single-token grammar;
+paths with spaces and more complex scheduler expressions are not supported.
+Resource and shell keys are ignored by this job-option renderer. The input
+mappings should contain job options, not entire machine definitions.
+Torque ppn denotes CPU slots; hybrid rank placement is a launcher concern.
+Historical Cray options remain available only through the legacy generator.
+
+References: [Slurm sbatch](https://slurm.schedmd.com/sbatch.html),
+[OpenPBS qsub](https://github.com/openpbs/openpbs/blob/master/doc/man1/qsub.1B),
+[Torque resources](https://docs.adaptivecomputing.com/torque/6-0-3/adminGuide/Content/topics/torque/2-jobs/requestingRes.htm).
 
 ## Compatibility policy
 

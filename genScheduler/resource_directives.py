@@ -5,11 +5,13 @@
 # !INTERFACE:
 # render_resource_directives(request, scheduler, ...)
 # !REMARKS:
-# PBS means PBS Professional/OpenPBS select syntax, not legacy Torque.
+# PBS means PBS Professional/OpenPBS select syntax; TORQUE is explicit.
 # Explicit overrides are resolved config < machine < CLI and validated.
 # This module does not render launchers or alter legacy script generation.
 # !REVISION HISTORY:
-# - 25th November 2026, J. G. de Mattos: Initial resource directive renderer.
+# - 25th November 2026, J. G. de Mattos:
+#   - Initial resource directive renderer.
+#   - Added explicit Torque CPU-slot allocation.
 #EOP
 #BOC
 
@@ -26,7 +28,7 @@ def render_resource_directives(
     cli: Mapping | None = None,
 ) -> tuple[str, ...]:
     """Render one consistent allocation; reject conflicting rank/CPU overrides."""
-    if scheduler not in ("SLURM", "PBS"):
+    if scheduler not in ("SLURM", "PBS", "TORQUE"):
         raise ValueError("unsupported scheduler resource dialect")
     values = {}
     for layer in (config, machine, cli):
@@ -54,6 +56,10 @@ def render_resource_directives(
             f"#SBATCH --ntasks-per-node={per_node}",
             f"#SBATCH --cpus-per-task={cpus}",
         )
+    if scheduler == "TORQUE":
+        # Torque ppn counts slots, not MPI ranks. Request uniform slots;
+        # hybrid rank placement must be handled by the launcher.
+        return (f"#PBS -l nodes={nodes}:ppn={min(per_node, ranks) * cpus}",)
     # Allocate exactly the requested ranks across the requested nonempty chunks.
     # Spread ranks evenly so every requested node has at least one rank.
     base, remainder = divmod(ranks, nodes)
